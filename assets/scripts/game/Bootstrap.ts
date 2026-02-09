@@ -1,0 +1,71 @@
+import { BoardView } from "./views/BoardView";
+import { BoosterView } from "./views/BoosterView";
+import { LoseView } from "./views/LoseView";
+import { MovesView } from "./views/MovesView";
+import { ScoreView } from "./views/ScoreView";
+import { WinView } from "./views/WinView";
+import { BlastGame } from "./BlastGame";
+import { BoosterType } from "./BoosterType";
+import { GameState } from "./GameState";
+
+const { ccclass, property } = cc._decorator;
+
+@ccclass
+export class Bootstrap extends cc.Component {
+
+    @property(BoosterView)
+    private teleportView: BoosterView
+
+    @property(BoosterView)
+    private bombView: BoosterView
+
+    @property(BoardView)
+    private boardView: BoardView;
+
+    @property(ScoreView)
+    private scoreView: ScoreView
+
+    @property(MovesView)
+    private movesView: MovesView
+
+    @property(WinView)
+    private winView: WinView
+
+    @property(LoseView)
+    private loseView: LoseView
+
+    private _game: BlastGame
+
+    protected onLoad(): void {
+        this._game = new BlastGame();
+        this._game.init();
+
+        this.scoreView.init(this._game);
+        this.movesView.init(this._game);
+
+        this.winView.init(this._game);
+        this.loseView.init(this._game);
+
+        this.bombView.init(this._game, BoosterType.BOMB);
+        this.teleportView.init(this._game, BoosterType.TELEPORT);
+        this.boardView.init(this._game);
+
+        this._game.stateChanged.subscribe(this.handleStateChanged, this);
+        this._game.start();
+    }
+
+    private handleStateChanged(state: GameState) {
+        console.log(state);
+
+        this.boardView.updateView();
+
+        this.scoreView.updateView();
+        this.movesView.updateView();
+
+        this.winView.updateView();
+        this.loseView.updateView();
+
+        this.teleportView.updateView();
+        this.bombView.updateView();
+    }
+}
