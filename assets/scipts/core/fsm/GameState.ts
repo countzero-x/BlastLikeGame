@@ -5,6 +5,6 @@ export enum GameState {
     APPLYING_GRAVITY = 'APPLYING_GRAVITY',
     SPAWNING_TILES = 'SPAWNING_TILES',
     SHUFFLING = 'SHUFFLING',
-    GAME_OVER = 'GAME_OVER',
+    LOSE = 'GAME_OVER',
     WIN = 'WIN'
 }

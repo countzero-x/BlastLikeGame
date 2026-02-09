@@ -5,15 +5,19 @@ import { Tile } from "./Tile";
 export class Shuffle {
     private readonly _maxAttempts: number;
 
-    private attempts: number;
+    private _attempts: number;
 
     public constructor(maxAttempts: number) {
         this._maxAttempts = maxAttempts;
-        this.attempts = maxAttempts;
+        this._attempts = maxAttempts;
+    }
+
+    public get attempts(): number {
+        return this._attempts;
     }
 
     public shuffleAvaliable() {
-        return this.attempts > 0;
+        return this._attempts > 0;
     }
 
     public shuffle(board: Board) {
@@ -46,6 +50,6 @@ export class Shuffle {
     }
 
     public reset() {
-        this.attempts = this._maxAttempts;
+        this._attempts = this._maxAttempts;
     }
 }

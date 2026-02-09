@@ -1,11 +1,12 @@
-import { GameConfig } from "./GameConfig";
-
+import { MyEvent } from "./MyEvent";
 
 export class Score {
     public readonly targetScore: number;
     public readonly scoreForTile: number;
 
     private _currentScore: number;
+
+    public scoreChanged: MyEvent<number> = new MyEvent<number>();
 
     constructor(targetScore: number, scoreForTile: number) {
         this._currentScore = 0;
@@ -22,7 +23,7 @@ export class Score {
     }
 
     public addScore(points: number): void {
-        this._currentScore += points;
+        this.currentScore += points;
     }
 
     public hasReachedTarget(): boolean {
@@ -30,6 +31,11 @@ export class Score {
     }
 
     public reset(): void {
-        this._currentScore = 0;
+        this.currentScore = 0;
+    }
+
+    private set currentScore(value: number) {
+        this._currentScore = value;
+        this.scoreChanged?.invoke(this.currentScore);
     }
 }

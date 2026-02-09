@@ -1,21 +1,24 @@
+import { MyEvent } from "./MyEvent";
 
 export class Moves {
     public readonly maxMoves: number;
 
     private _currentMoves: number;
 
-    public get currentMoves(): number {
-        return this.currentMoves;
-    }
+    public movesChanged: MyEvent<number> = new MyEvent<number>();
 
     constructor(maxMoves: number) {
         this._currentMoves = maxMoves;
         this.maxMoves = maxMoves;
     }
 
+    public get currentMoves(): number {
+        return this._currentMoves;
+    }
+
     public decrementMove(): void {
         if (this._currentMoves > 0) {
-            this._currentMoves--;
+            this.currentMoves--;
         }
     }
 
@@ -24,6 +27,11 @@ export class Moves {
     }
 
     public reset(): void {
-        this._currentMoves = this.maxMoves;
+        this.currentMoves = this.maxMoves;
+    }
+
+    private set currentMoves(value: number) {
+        this._currentMoves = value;
+        this.movesChanged?.invoke(this.currentMoves);
     }
 }

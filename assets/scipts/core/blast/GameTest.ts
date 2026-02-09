@@ -20,6 +20,18 @@ export class GameTest extends cc.Component {
     @property(cc.Prefab)
     tilePrefab: cc.Prefab
 
+    @property(cc.Label)
+    scoreLabel: cc.Label
+
+    @property(cc.Label)
+    movesLabel: cc.Label
+
+    @property(cc.Button)
+    winButton: cc.Button
+
+    @property(cc.Button)
+    loseButton: cc.Button
+
     game: BlastGame
 
     tileViews: TileView[][] = [];
@@ -29,6 +41,16 @@ export class GameTest extends cc.Component {
         this.game.stateChanged.subscribe(this.handleStateChanged, this);
         this.game.init();
         this.game.start();
+
+        this.winButton.node.on('click', () => {
+            this.game.finish();
+            this.game.start();
+        })
+
+        this.loseButton.node.on('click', () => {
+            this.game.finish();
+            this.game.start();
+        })
 
         this.clickNode.on(cc.Node.EventType.TOUCH_END, this.onTouch, this);
     }
@@ -59,6 +81,10 @@ export class GameTest extends cc.Component {
     private handleStateChanged(state: GameState) {
         console.log(state);
         this.updateView();
+        this.scoreLabel.string = `${this.game._score.currentScore.toString()} / ${this.game._score.targetScore}`;
+        this.movesLabel.string = this.game._moves.currentMoves.toString();
+        this.winButton.node.active = state == GameState.WIN;
+        this.loseButton.node.active = state == GameState.LOSE;
         GameTest.printBoard(this.game._board);
     }
 

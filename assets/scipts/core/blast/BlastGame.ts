@@ -37,7 +37,8 @@ export class BlastGame {
     }
 
     public start() {
-        this.fillEmptySpaces();
+        this._spawner.generate(this._board);
+        this.setState(GameState.SPAWNING_TILES);
         this.setState(GameState.IDLE);
     }
 
@@ -48,19 +49,7 @@ export class BlastGame {
     private reset() {
         this._score.reset();
         this._moves.reset();
-    }
-
-    private fillEmptySpaces() {
-        this._spawner.generate(this._board);
-
-        if (!this._matches.hasAvailableMoves(this._board)) {
-            if (this._shuffle.shuffleAvaliable()) {
-                this.setState(GameState.SHUFFLING);
-                this._shuffle.shuffle(this._board);
-            } else {
-                // this.lose();
-            }
-        }
+        this._board.clear();
     }
 
     public makeMove(x: number, y: number) {
@@ -79,36 +68,46 @@ export class BlastGame {
     }
 
     private updateTurn() {
-        for (let x = 0; x < this._board.width; x++) {
-            for (let y = 0; y < this._board.height; y++) {
-                console.log()
-            }
+        this._shuffle.reset();
+
+        if (this.selectedTile == null) {
+            return;
         }
 
         let tilesRemoved = new Array<Tile>();
-
         if (this.selectedTile != null) {
             tilesRemoved = this._matches.findConnectedGroup(this._board, this.selectedTile.x, this.selectedTile.y);
-            this.selectedTile = null;
         }
 
-        if (tilesRemoved.length > 0) {
-            this.setState(GameState.REMOVING_TILES);
-            for (var tileRemoved of tilesRemoved) {
-                this._board.removeTile(tileRemoved);
-            }
+        if (tilesRemoved.length == 0) {
+            return;
         }
 
-        this.setState(GameState.APPLYING_GRAVITY);
+        for (var tileRemoved of tilesRemoved) {
+            this._board.removeTile(tileRemoved);
+        }
+        this.setState(GameState.REMOVING_TILES);
+
         this._gravity.applyGravity(this._board);
+        this.setState(GameState.APPLYING_GRAVITY);
 
         const scoreGained = this._score.calculateScore(tilesRemoved.length);
         this._score.addScore(scoreGained);
 
         this._moves.decrementMove();
 
+        this._spawner.generate(this._board);
         this.setState(GameState.SPAWNING_TILES);
-        this.fillEmptySpaces();
+
+        for (let attempt = 0; attempt < this._shuffle.attempts; attempt++) {
+            if (!this._matches.hasAvailableMoves(this._board)) {
+                this._shuffle.shuffle(this._board);
+                this.setState(GameState.SHUFFLING);
+            }
+            else {
+                break;
+            }
+        }
 
         if (this._score.hasReachedTarget()) {
             this.setState(GameState.WIN);
@@ -116,7 +115,12 @@ export class BlastGame {
         }
 
         if (!this._moves.hasMovesLeft()) {
-            this.setState(GameState.GAME_OVER);
+            this.setState(GameState.LOSE);
+            return;
+        }
+
+        if (!this._matches.hasAvailableMoves(this._board)) {
+            this.setState(GameState.LOSE);
             return;
         }
 
