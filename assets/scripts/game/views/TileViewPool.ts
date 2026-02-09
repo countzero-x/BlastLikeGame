@@ -7,8 +7,13 @@ export class TileViewPool {
     private pool: cc.NodePool;
     private prefab: cc.Prefab
 
-    public init() {
+    public init(prefab: cc.Prefab) {
+        this.prefab = prefab;
         this.pool = new cc.NodePool(TileViewPool.TILES_POOL_NAME);
+    }
+
+    public terminate() {
+        this.pool.clear();
     }
 
     public get(tile: Tile): TileView {

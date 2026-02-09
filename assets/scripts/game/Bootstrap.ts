@@ -38,6 +38,9 @@ export class Bootstrap extends cc.Component {
     @property(OverlayView)
     private overlayView: OverlayView
 
+    @property(cc.Prefab)
+    private tilePrefab: cc.Prefab
+
     private _game: BlastGame
 
     protected onLoad(): void {
@@ -56,7 +59,7 @@ export class Bootstrap extends cc.Component {
         this.teleportView.init(this._game, BoosterType.TELEPORT);
 
         const tileViewPool = new TileViewPool();
-        tileViewPool.init();
+        tileViewPool.init(this.tilePrefab);
 
         this.boardView.init(this._game, tileViewPool);
 

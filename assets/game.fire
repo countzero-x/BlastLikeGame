@@ -277,6 +277,9 @@
     "overlayView": {
       "__id__": 124
     },
+    "tilePrefab": {
+      "__uuid__": "e4ff5c98-fd15-48c6-852d-4c34a4e21715"
+    },
     "_id": "4bR2HOgLdJ/bUG9ccLcKo5"
   },
   {
@@ -2020,9 +2023,6 @@
       "__id__": 52
     },
     "_enabled": true,
-    "tilePrefab": {
-      "__uuid__": "e4ff5c98-fd15-48c6-852d-4c34a4e21715"
-    },
     "tiles": {
       "__id__": 56
     },
