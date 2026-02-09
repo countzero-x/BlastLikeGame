@@ -30,7 +30,7 @@ export class Boosters {
         [BoosterType.NONE]: {
             inputState: InputState.NORMAL,
             getCount: () => Infinity,
-            decrementCount: () => {},
+            decrementCount: () => { },
         },
     };
 
@@ -56,7 +56,7 @@ export class Boosters {
 
     public reset(): void {
         this._selectedType = BoosterType.NONE;
-        this._clearTeleportTiles();
+        this.clearTeleportTiles();
         this._bombCount = this._bombMaxCount;
         this._teleportCount = this._teleportMaxCount;
     }
@@ -67,7 +67,7 @@ export class Boosters {
         this._selectedType = type;
 
         if (type === BoosterType.NONE) {
-            this._clearTeleportTiles();
+            this.clearTeleportTiles();
         }
     }
 
@@ -79,47 +79,47 @@ export class Boosters {
     public processClick(game: BlastGame, tile: Tile): Tile[] | null {
         const handlers: Record<InputState, () => Tile[] | null> = {
             [InputState.NORMAL]: () => null,
-            [InputState.BOMB]: () => this._handleBombClick(game, tile),
-            [InputState.TELEPORT_PHASE_ONE]: () => this._handleTeleportPhaseOne(game, tile),
-            [InputState.TELEPORT_PHASE_TWO]: () => this._handleTeleportPhaseTwo(game, tile),
+            [InputState.BOMB]: () => this.handleBombClick(game, tile),
+            [InputState.TELEPORT_PHASE_ONE]: () => this.handleTeleportPhaseOne(game, tile),
+            [InputState.TELEPORT_PHASE_TWO]: () => this.handleTeleportPhaseTwo(game, tile),
         };
 
         return handlers[game.inputState]();
     }
 
-    private _handleBombClick(game: BlastGame, tile: Tile): Tile[] {
-        const tiles = this._getBombAffectedTiles(tile, game.board);
-        this._completeBoosterUse(game, BoosterType.BOMB);
+    private handleBombClick(game: BlastGame, tile: Tile): Tile[] {
+        const tiles = this.getBombAffectedTiles(tile, game.board);
+        this.completeBoosterUse(game, BoosterType.BOMB);
         return tiles;
     }
 
-    private _handleTeleportPhaseOne(game: BlastGame, tile: Tile): null {
+    private handleTeleportPhaseOne(game: BlastGame, tile: Tile): Tile[] {
         this._firstTeleportTile = tile;
         game.inputState = InputState.TELEPORT_PHASE_TWO;
-        return null;
+        return [];
     }
 
-    private _handleTeleportPhaseTwo(game: BlastGame, tile: Tile): null {
+    private handleTeleportPhaseTwo(game: BlastGame, tile: Tile): Tile[] {
         this._secondTeleportTile = tile;
-        this._applyTeleport(game);
-        this._completeBoosterUse(game, BoosterType.TELEPORT);
-        return null;
+        this.applyTeleport(game);
+        this.completeBoosterUse(game, BoosterType.TELEPORT);
+        return [];
     }
 
-    private _completeBoosterUse(game: BlastGame, type: BoosterType): void {
+    private completeBoosterUse(game: BlastGame, type: BoosterType): void {
         game.inputState = InputState.NORMAL;
         this._selectedType = BoosterType.NONE;
         this._boosterConfig[type].decrementCount();
     }
 
-    private _getBombAffectedTiles(selectedTile: Tile, board: Board): Tile[] {
+    private getBombAffectedTiles(selectedTile: Tile, board: Board): Tile[] {
         const tiles: Tile[] = [];
         const radiusSq = this._bombRadius * this._bombRadius;
 
         for (let dx = -this._bombRadius; dx <= this._bombRadius; dx++) {
             for (let dy = -this._bombRadius; dy <= this._bombRadius; dy++) {
                 const distanceSq = dx * dx + dy * dy;
-                
+
                 if (distanceSq <= radiusSq) {
                     const tile = board.getTile(selectedTile.x + dx, selectedTile.y + dy);
                     if (tile?.isEmpty === false) {
@@ -132,14 +132,14 @@ export class Boosters {
         return tiles;
     }
 
-    private _applyTeleport(game: BlastGame): void {
+    private applyTeleport(game: BlastGame): void {
         if (this._firstTeleportTile && this._secondTeleportTile) {
             game.board.swapTiles(this._firstTeleportTile, this._secondTeleportTile);
         }
-        this._clearTeleportTiles();
+        this.clearTeleportTiles();
     }
 
-    private _clearTeleportTiles(): void {
+    private clearTeleportTiles(): void {
         this._firstTeleportTile = null;
         this._secondTeleportTile = null;
     }
