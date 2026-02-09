@@ -1,3 +1,4 @@
+import { SuperTile } from "./SuperTile";
 import { Tile } from "./Tile";
 
 // TileView.ts - полная версия с супер-тайлами
@@ -11,6 +12,9 @@ export default class TileView extends cc.Component {
 
     @property([cc.SpriteFrame])
     colorSprites: cc.SpriteFrame[] = [];
+
+    @property([cc.SpriteFrame])
+    superTileSprites: cc.SpriteFrame[] = [];
 
     private tile: Tile = null;
     public onTileClick: (x: number, y: number) => void = null;
@@ -37,8 +41,14 @@ export default class TileView extends cc.Component {
             return;
         }
 
+        // todo: не уверен что нужен один вью на оба типа
         this.node.active = true;
-        this.sprite.spriteFrame = this.colorSprites[this.tile.color];
+        if (this.tile instanceof SuperTile) {
+            this.sprite.spriteFrame = this.superTileSprites[this.tile.type];
+        }
+        else {
+            this.sprite.spriteFrame = this.colorSprites[this.tile.color];
+        }
     }
 
     public getTile(): Tile {

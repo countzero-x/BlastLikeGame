@@ -242,6 +242,20 @@
         "__uuid__": "6a5409cd-d61e-4389-8afd-fc62e928c73c"
       }
     ],
+    "superTileSprites": [
+      {
+        "__uuid__": "91f41c8d-cdf3-4640-a897-a7c48d904317"
+      },
+      {
+        "__uuid__": "30e0112c-2eda-4a1f-ab5a-7cd172f113c7"
+      },
+      {
+        "__uuid__": "b7d50b11-07cc-4b76-9994-1f5d87801400"
+      },
+      {
+        "__uuid__": "1ddaf88e-ba6e-43ca-bddb-5e922c509ed0"
+      }
+    ],
     "_id": ""
   },
   {

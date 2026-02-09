@@ -1,3 +1,4 @@
+import { Board } from "./Board";
 import { TileColor } from "./TileColor";
 
 export class Tile {

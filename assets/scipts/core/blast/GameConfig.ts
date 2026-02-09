@@ -15,4 +15,10 @@ export class GameConfig {
     static readonly MAX_MOVES = 10;
 
     static readonly MAX_SHUFFLES = 3;
+
+    static readonly SUPERTILE_REMOVED_COUNT_FOR_LINE = 5;
+    static readonly SUPERTILE_REMOVED_COUNT_FOR_RADIUS_BOMB = 8;
+    static readonly SUPERTILE_REMOVED_COUNT_FOR_MAX_BOMB = 10;
+
+    static readonly RADIUS_BOMB = 2;
 }

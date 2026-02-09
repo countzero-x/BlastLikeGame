@@ -8,8 +8,10 @@ import { MyEvent } from "./MyEvent";
 import { Score } from "./Score";
 import { Shuffle } from "./Shuffle";
 import { Spawner } from "./Spawner";
+import { SuperTile } from "./SuperTile";
+import { SuperTiles } from "./SuperTiles";
+import { SuperTileType } from "./SuperTileType";
 import { Tile } from "./Tile";
-import { TileColor } from "./TileColor";
 
 export class BlastGame {
     // todo не паблик
@@ -21,10 +23,9 @@ export class BlastGame {
     public _shuffle: Shuffle;
     public _matches: Matches;
     public _gravity: Gravity;
+    public _superTiles: SuperTiles
 
     public stateChanged: MyEvent<GameState> = new MyEvent<GameState>();
-
-    private selectedTile: Tile
 
     public init() {
         this._board = new Board(GameConfig.DEFAULT_BOARD_WIDTH, GameConfig.DEFAULT_BOARD_HEIGHT);
@@ -34,6 +35,7 @@ export class BlastGame {
         this._spawner = new Spawner();
         this._matches = new Matches();
         this._gravity = new Gravity();
+        this._superTiles = new SuperTiles();
     }
 
     public start() {
@@ -60,9 +62,7 @@ export class BlastGame {
             return;
         }
 
-        this.selectedTile = tile;
-
-        this.updateTurn();
+        this.updateTurn(tile);
     }
 
     private updateBoard() {
@@ -71,7 +71,7 @@ export class BlastGame {
         this._gravity.applyGravity(this._board);
         this.setState(GameState.APPLYING_GRAVITY);
 
-        this._spawner.generate(this._board);
+        this._spawner.fillWithRegularTiles(this._board);
         this.setState(GameState.SPAWNING_TILES);
 
         for (let attempt = 0; attempt < this._shuffle.attempts; attempt++) {
@@ -93,24 +93,40 @@ export class BlastGame {
         }
     }
 
-    private updateTurn() {
-        if (this.selectedTile == null) {
+    private updateTurn(tile: Tile) {
+        if (tile == null) {
             return;
         }
 
-        let tilesRemoved = new Array<Tile>();
-        if (this.selectedTile != null) {
-            tilesRemoved = this._matches.findConnectedGroup(this._board, this.selectedTile.x, this.selectedTile.y);
-        }
+        const tilesRemoved = new Array<Tile>();
+        tilesRemoved.push(tile);
+
+        tilesRemoved.push(...this._matches.findConnectedGroup(this._board, tile.x, tile.y));
+        const initialRemovedCount = tilesRemoved.length;
 
         if (tilesRemoved.length == 0) {
             return;
         }
 
-        for (var tileRemoved of tilesRemoved) {
+        for (let i = 0; i < tilesRemoved.length; i++) {
+            const tileRemoved = tilesRemoved[i];
+
             this._board.removeTile(tileRemoved);
+
+            if (tileRemoved instanceof SuperTile) {
+                tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
+            }
         }
+
+        // todo что сначала удалить или активировтаь
+        // tileRemoved.activate(this._board);
         this.setState(GameState.REMOVING_TILES);
+
+        const superTileType = this._superTiles.GetSuperTileType(initialRemovedCount);
+        if (superTileType != SuperTileType.NONE) {
+            const superTile = this._spawner.createSuperTile(tile.x, tile.y, superTileType);
+            this._board.setTile(tile.x, tile.y, superTile);
+        }
 
         this.updateBoard();
 
