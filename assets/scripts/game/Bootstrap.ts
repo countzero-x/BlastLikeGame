@@ -18,6 +18,8 @@ import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
 import { SuperTiles } from "./mechanics/SuperTiles";
+import { BombBooster } from "./mechanics/boosters/BombBooster";
+import { TeleportBooster } from "./mechanics/boosters/TeleportBooster";
 
 const { ccclass, property } = cc._decorator;
 
@@ -90,6 +92,11 @@ export class Bootstrap extends cc.Component {
     private _game: BlastGame
 
     protected onLoad(): void {
+
+        const boosters = new Boosters();
+        boosters.register(new BombBooster(this.boosterBombCount, this.boosterBombRadius));
+        boosters.register(new TeleportBooster(this.boosterTeleportCount));
+
         this._game = new BlastGame(
             new Board(this.boardWidth, this.boardHeight),
             new Score(this.targetScore, this.scorePerTile),
@@ -99,7 +106,7 @@ export class Bootstrap extends cc.Component {
             new Matches(),
             new Gravity(),
             new SuperTiles(this.superTileRemovedCountForLine, this.superTileRemovedCountForLineRadiusBomb, this.superTileRemovedCountForMaxBomb, this.superTileBombRadius),
-            new Boosters(this.boosterBombCount, this.boosterTeleportCount, this.boosterBombRadius)
+            boosters
         );
 
         this.scoreView.init(this._game.score);
@@ -110,8 +117,8 @@ export class Bootstrap extends cc.Component {
 
         this.overlayView.init(this._game);
 
-        this.bombView.init(this._game, BoosterType.BOMB);
-        this.teleportView.init(this._game, BoosterType.TELEPORT);
+        this.bombView.init(this._game.boosters, BoosterType.BOMB);
+        this.teleportView.init(this._game.boosters, BoosterType.TELEPORT);
 
         const tileViewPool = new TileViewPool();
         tileViewPool.init(this.tilePrefab);

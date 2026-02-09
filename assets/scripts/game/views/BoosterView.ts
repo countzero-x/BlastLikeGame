@@ -1,5 +1,7 @@
 import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
+import { Boosters } from "../mechanics/Boosters";
+import { IBooster } from "../mechanics/boosters/IBooster";
 
 const { ccclass, property } = cc._decorator;
 
@@ -12,24 +14,25 @@ export class BoosterView extends cc.Component {
     @property(cc.Button)
     private button: cc.Button;
 
-    private _type: BoosterType;
-    private _game: BlastGame
+    private _booster: IBooster;
+    private _boosters: Boosters
 
-    public init(game: BlastGame, type: BoosterType) {
-        this._type = type;
-        this._game = game;
+    public init(boosters: Boosters, type: BoosterType) {
+        this._boosters = boosters;
+
+        this._booster = this._boosters.getBooster(type);
 
         this.button.node.on('click', () => {
-            if (game.boosters.selectedType == type) {
-                game.boosters.apply(game, BoosterType.NONE);
-            } else if (game.boosters.canApply(type)) {
-                game.boosters.apply(game, type);
+            if (this._boosters.selectedType == type) {
+                this._boosters.apply(BoosterType.NONE);
+            } else if (this._boosters.canApply(type)) {
+                this._boosters.apply(type);
             }
         });
     }
 
     public updateView() {
-        this.label.string = this._type == BoosterType.BOMB ? this._game.boosters.bombCount.toString() : this._game.boosters.teleportCount.toString();
-        this.button.interactable = this._game.boosters.canApply(BoosterType.BOMB);
+        this.label.string = this._booster.count().toString();
+        this.button.interactable = this._boosters.canApply(BoosterType.BOMB);
     }
 }

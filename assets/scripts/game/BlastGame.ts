@@ -4,6 +4,7 @@ import { InputState } from "./enums/InputState";
 import { SuperTileType } from "./enums/SuperTileType";
 import { Board } from "./mechanics/Board";
 import { Boosters } from "./mechanics/Boosters";
+import { BoosterContext } from "./mechanics/boosters/IBooster";
 import { Gravity } from "./mechanics/Gravity";
 import { Matches } from "./mechanics/Matches";
 import { Moves } from "./mechanics/Moves";
@@ -56,6 +57,11 @@ export class BlastGame {
         this.gravity = gravity;
         this.superTiles = superTiles;
         this.boosters = boosters;
+
+        this.boosters.setContext({
+            board: this.board,
+            setInputState: this.setInputState.bind(this),
+        });
     }
 
     public getState() {
@@ -140,7 +146,7 @@ export class BlastGame {
     }
 
     private applyBoosterClick(clicked: Tile): TurnOutcome {
-        const toRemove = this.boosters.processClick(this, clicked);
+        const toRemove = this.boosters.processClick(clicked);
         const removedCount = this.removeWithSuperCascade(toRemove);
 
         return { removedCount, initialMatchCount: 0, consumedMove: false };
@@ -161,7 +167,9 @@ export class BlastGame {
 
             if (t instanceof SuperTile) {
                 const extra = this.superTiles.activate(t, this.board);
-                for (const e of extra) queue.push(e);
+                for (const e of extra) {
+                    queue.push(e);
+                }
             }
         }
 
@@ -203,5 +211,9 @@ export class BlastGame {
     private setState(state: GameState) {
         this.state = state;
         this.stateChanged.invoke(this.state);
+    }
+
+    private setInputState(state: InputState) {
+        this.inputState = state;
     }
 }
