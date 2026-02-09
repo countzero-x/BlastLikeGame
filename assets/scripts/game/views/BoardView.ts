@@ -1,5 +1,5 @@
 import { BlastGame } from "../BlastGame";
-import { Tile } from "./Tile";
+import { Tile } from "../Tile";
 
 import TileView from "./TileView";
 import { TileViewPool } from "./TileViewPool";

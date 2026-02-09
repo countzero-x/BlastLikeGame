@@ -1,7 +1,7 @@
 import { Board } from "./Board";
 import { SuperTileType } from "../enums/SuperTileType";
-import { SuperTile } from "../views/SuperTile";
-import { Tile } from "../views/Tile";
+import { SuperTile } from "../SuperTile";
+import { Tile } from "../Tile";
 
 export class SuperTiles {
 

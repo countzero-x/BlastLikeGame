@@ -1,4 +1,4 @@
-import { Tile } from "../views/Tile";
+import { Tile } from "../Tile";
 
 export class Board {
     private tiles: Map<number, Tile>;

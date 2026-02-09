@@ -1,6 +1,6 @@
 import { Board } from "./Board";
-import { SuperTile } from "../views/SuperTile";
-import { Tile } from "../views/Tile";
+import { SuperTile } from "../SuperTile";
+import { Tile } from "../Tile";
 
 export class Matches {
     public hasAvailableMatches(board: Board): boolean {

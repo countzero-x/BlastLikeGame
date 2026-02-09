@@ -1,4 +1,4 @@
-import { TileColor } from "../enums/TileColor";
+import { TileColor } from "./enums/TileColor";
 
 export class Tile {
     x: number;

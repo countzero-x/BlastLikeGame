@@ -2,7 +2,7 @@ import { BlastGame } from "../BlastGame";
 import { Board } from "./Board";
 import { BoosterType } from "../enums/BoosterType";
 import { InputState } from "../enums/InputState";
-import { Tile } from "../views/Tile";
+import { Tile } from "../Tile";
 
 export class Boosters {
     private readonly _bombMaxCount: number;

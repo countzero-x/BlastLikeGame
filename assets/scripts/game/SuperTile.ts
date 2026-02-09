@@ -1,5 +1,5 @@
-import { SuperTileType } from "../enums/SuperTileType";
-import { TileColor } from "../enums/TileColor";
+import { SuperTileType } from "./enums/SuperTileType";
+import { TileColor } from "./enums/TileColor";
 import { Tile } from "./Tile";
 
 export class SuperTile extends Tile {

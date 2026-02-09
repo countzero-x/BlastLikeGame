@@ -1,9 +1,9 @@
 import { Board } from "./Board";
 import { TileColor } from "../enums/TileColor";
-import { Tile } from "../views/Tile";
+import { Tile } from "../Tile";
 
 export class Gravity {
-    
+
     public applyGravity(board: Board): void {
         for (let x = 0; x < board.width; x++) {
             const tiles: Tile[] = [];

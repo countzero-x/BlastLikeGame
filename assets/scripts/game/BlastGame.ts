@@ -11,8 +11,8 @@ import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
 import { SuperTiles } from "./mechanics/SuperTiles";
-import { SuperTile } from "./views/SuperTile";
-import { Tile } from "./views/Tile";
+import { SuperTile } from "./SuperTile";
+import { Tile } from "./Tile";
 
 type TurnOutcome = {
     removedCount: number;

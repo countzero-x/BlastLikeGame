@@ -1,5 +1,5 @@
-import { SuperTile } from "./SuperTile";
-import { Tile } from "./Tile";
+import { SuperTile } from "../SuperTile";
+import { Tile } from "../Tile";
 
 const { ccclass, property } = cc._decorator;
 
