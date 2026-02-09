@@ -8,6 +8,8 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export class BoardView extends cc.Component {
 
+    private static readonly TILES_POOL_NAME = 'TilesPool';
+
     @property(cc.Prefab)
     private tilePrefab: cc.Prefab
 
@@ -23,7 +25,7 @@ export class BoardView extends cc.Component {
     private pool: cc.NodePool;
 
     public init(game: BlastGame) {
-        this.pool = new cc.NodePool('TilesPool');
+        this.pool = new cc.NodePool(BoardView.TILES_POOL_NAME);
 
         this._game = game;
         this.clickNode.on(cc.Node.EventType.TOUCH_END, this.onTouch, this);
