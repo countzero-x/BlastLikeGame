@@ -47,6 +47,10 @@ export class BlastGame {
     public start() {
         this._inputState = InputState.NORMAL;
         this.updateBoard();
+
+        if (this._state != GameState.LOSE) {
+            this.setState(GameState.IDLE);
+        }
     }
 
     public finish() {
@@ -96,10 +100,6 @@ export class BlastGame {
 
         if (!this._matches.hasAvailableMoves(this._board)) {
             this.setState(GameState.LOSE);
-        }
-        else {
-            //todo: некорректно т.к. дальше может быть луз и т.д.
-            this.setState(GameState.IDLE);
         }
     }
 
