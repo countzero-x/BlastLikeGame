@@ -7,6 +7,7 @@ import { WinView } from "./views/WinView";
 import { BlastGame } from "./BlastGame";
 import { BoosterType } from "./enums/BoosterType";
 import { GameState } from "./enums/GameState";
+import { OverlayView } from "./views/OverlayView";
 
 const { ccclass, property } = cc._decorator;
 
@@ -34,6 +35,9 @@ export class Bootstrap extends cc.Component {
     @property(LoseView)
     private loseView: LoseView
 
+    @property(OverlayView)
+    private overlayView: OverlayView
+
     private _game: BlastGame
 
     protected onLoad(): void {
@@ -46,6 +50,8 @@ export class Bootstrap extends cc.Component {
         this.winView.init(this._game);
         this.loseView.init(this._game);
 
+        this.overlayView.init(this._game);
+
         this.bombView.init(this._game, BoosterType.BOMB);
         this.teleportView.init(this._game, BoosterType.TELEPORT);
         this.boardView.init(this._game);
@@ -55,7 +61,7 @@ export class Bootstrap extends cc.Component {
     }
 
     private handleStateChanged(state: GameState) {
-        console.log(state);
+        this.overlayView.updateView();
 
         this.boardView.updateView();
 
