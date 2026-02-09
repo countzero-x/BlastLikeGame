@@ -11,6 +11,7 @@ export class Board {
         this.tiles = new Map();
     }
 
+    // todo: втф
     private getKey(x: number, y: number): string {
         return `${x},${y}`;
     }
@@ -22,13 +23,18 @@ export class Board {
         return this.tiles.get(this.getKey(x, y)) || null;
     }
 
-    setTile(tile: Tile): void {
+    setTile(x: number, y: number, tile: Tile): void {
+        tile.setPosition(x, y);
         if (this.isValidPosition(tile.x, tile.y)) {
             this.tiles.set(this.getKey(tile.x, tile.y), tile);
         }
     }
 
-    removeTile(x: number, y: number): void {
+    public removeTile(tile: Tile): void {
+        this.removeTileByPosition(tile.x, tile.y);
+    }
+
+    removeTileByPosition(x: number, y: number): void {
         this.tiles.delete(this.getKey(x, y));
     }
 

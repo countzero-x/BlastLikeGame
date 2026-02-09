@@ -10,4 +10,6 @@ export class GameConfig {
 
     // Ходы
     static readonly MAX_MOVES = 10;
+
+    static readonly MAX_SHUFFLES = 3;
 }

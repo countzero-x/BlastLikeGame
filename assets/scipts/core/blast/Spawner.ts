@@ -4,29 +4,20 @@ import { TileColor } from "./TileColor";
 
 
 export class Spawner {
-    private _board: Board;
 
-    public constructor(board: Board) {
-        this._board = board;
-    }
-
-    public generate(): Tile[] {
-        const newTiles: Tile[] = [];
-
-        for (let x = 0; x < this._board.width; x++) {
+    public generate(board: Board) {
+        for (let x = 0; x < board.width; x++) {
             const emptyPositions: number[] = [];
 
-            for (let y = this._board.height - 1; y >= 0; y--) {
-                const tile = this._board.getTile(x, y);
+            for (let y = board.height - 1; y >= 0; y--) {
+                const tile = board.getTile(x, y);
                 if (tile && tile.isEmpty) {
                     emptyPositions.push(y);
                     const newTile = this.createRandomTile(x, y);
-                    newTiles.push(newTile);
+                    board.setTile(x, y, newTile)
                 }
             }
         }
-
-        return newTiles;
     }
 
     public createRandomTile(x: number, y: number): Tile {

@@ -29,10 +29,6 @@ export class Score {
         return this._currentScore >= this.targetScore;
     }
 
-    public getProgress(): number {
-        return Math.min(this._currentScore / this.targetScore, 1.0);
-    }
-
     public reset(): void {
         this._currentScore = 0;
     }
