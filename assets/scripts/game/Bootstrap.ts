@@ -20,6 +20,8 @@ import { Spawner } from "./mechanics/Spawner";
 import { SuperTiles } from "./mechanics/SuperTiles";
 import { BombBooster } from "./mechanics/boosters/BombBooster";
 import { TeleportBooster } from "./mechanics/boosters/TeleportBooster";
+import { TileColor } from "./enums/TileColor";
+import { SuperTileType } from "./enums/SuperTileType";
 
 const { ccclass, property } = cc._decorator;
 
@@ -63,31 +65,58 @@ export class Bootstrap extends cc.Component {
     private boosterTeleportCount = 3;
 
     @property(BoosterView)
-    private teleportView: BoosterView
+    private teleportView: BoosterView;
 
     @property(BoosterView)
-    private bombView: BoosterView
+    private bombView: BoosterView;
 
     @property(BoardView)
     private boardView: BoardView;
 
     @property(ScoreView)
-    private scoreView: ScoreView
+    private scoreView: ScoreView;
 
     @property(MovesView)
-    private movesView: MovesView
+    private movesView: MovesView;
 
     @property(WinView)
-    private winView: WinView
+    private winView: WinView;
 
     @property(LoseView)
-    private loseView: LoseView
+    private loseView: LoseView;
 
     @property(OverlayView)
-    private overlayView: OverlayView
+    private overlayView: OverlayView;
 
     @property(cc.Prefab)
-    private tilePrefab: cc.Prefab
+    private tilePrefab: cc.Prefab;
+
+    @property(cc.SpriteFrame)
+    private redTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private blueTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private greenTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private yellowTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private purpleTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private horizontalTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private verticalTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private radiusBombTileSprite: cc.SpriteFrame;
+
+    @property(cc.SpriteFrame)
+    private maxBombTileSprite: cc.SpriteFrame;
 
     private _game: BlastGame
 
@@ -121,7 +150,18 @@ export class Bootstrap extends cc.Component {
         this.teleportView.init(this._game.boosters, BoosterType.TELEPORT);
 
         const tileViewPool = new TileViewPool();
-        tileViewPool.init(this.tilePrefab);
+        tileViewPool.init(this.tilePrefab, this.boardHeight * this.boardWidth);
+
+        tileViewPool.registerRegularTile(TileColor.RED, this.redTileSprite);
+        tileViewPool.registerRegularTile(TileColor.BLUE, this.blueTileSprite);
+        tileViewPool.registerRegularTile(TileColor.GREEN, this.greenTileSprite);
+        tileViewPool.registerRegularTile(TileColor.YELLOW, this.yellowTileSprite);
+        tileViewPool.registerRegularTile(TileColor.PURPLE, this.purpleTileSprite);
+
+        tileViewPool.registerSuperTile(SuperTileType.HORIZONTAL, this.horizontalTileSprite);
+        tileViewPool.registerSuperTile(SuperTileType.VERTICAL, this.verticalTileSprite);
+        tileViewPool.registerSuperTile(SuperTileType.RADIUS_BOMB, this.radiusBombTileSprite);
+        tileViewPool.registerSuperTile(SuperTileType.MAX_BOMB, this.maxBombTileSprite);
 
         this.boardView.init(this._game, tileViewPool, this.tileSize, this.tileSpacing);
 

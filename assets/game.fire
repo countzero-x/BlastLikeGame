@@ -295,6 +295,33 @@
     "tilePrefab": {
       "__uuid__": "e4ff5c98-fd15-48c6-852d-4c34a4e21715"
     },
+    "redTileSprite": {
+      "__uuid__": "6a09a93e-cf79-459c-8cff-3a43b7e0a643"
+    },
+    "blueTileSprite": {
+      "__uuid__": "cc0fd20b-411f-4be2-8369-a968fe5c3cb5"
+    },
+    "greenTileSprite": {
+      "__uuid__": "c3cac142-0ebe-4659-a1f5-567c15723204"
+    },
+    "yellowTileSprite": {
+      "__uuid__": "6a5409cd-d61e-4389-8afd-fc62e928c73c"
+    },
+    "purpleTileSprite": {
+      "__uuid__": "d4c13e48-fbbb-4611-9216-59cf7620d641"
+    },
+    "horizontalTileSprite": {
+      "__uuid__": "91f41c8d-cdf3-4640-a897-a7c48d904317"
+    },
+    "verticalTileSprite": {
+      "__uuid__": "30e0112c-2eda-4a1f-ab5a-7cd172f113c7"
+    },
+    "radiusBombTileSprite": {
+      "__uuid__": "b7d50b11-07cc-4b76-9994-1f5d87801400"
+    },
+    "maxBombTileSprite": {
+      "__uuid__": "1ddaf88e-ba6e-43ca-bddb-5e922c509ed0"
+    },
     "_id": "4bR2HOgLdJ/bUG9ccLcKo5"
   },
   {
