@@ -8,6 +8,8 @@ import { MyEvent } from "./MyEvent";
 import { Score } from "./Score";
 import { Shuffle } from "./Shuffle";
 import { Spawner } from "./Spawner";
+import { Tile } from "./Tile";
+import { TileColor } from "./TileColor";
 
 export class BlastGame {
     // todo не паблик
@@ -22,6 +24,8 @@ export class BlastGame {
 
     public stateChanged: MyEvent<GameState> = new MyEvent<GameState>();
 
+    private selectedTile: Tile
+
     public init() {
         this._board = new Board(GameConfig.DEFAULT_BOARD_WIDTH, GameConfig.DEFAULT_BOARD_HEIGHT);
         this._score = new Score(GameConfig.TARGET_SCORE, GameConfig.SCORE_FOR_TILE);
@@ -33,7 +37,6 @@ export class BlastGame {
     }
 
     public start() {
-        this.setState(GameState.SPAWNING_TILES);
         this.fillEmptySpaces();
         this.setState(GameState.IDLE);
     }
@@ -55,7 +58,7 @@ export class BlastGame {
                 this.setState(GameState.SHUFFLING);
                 this._shuffle.shuffle(this._board);
             } else {
-                this.lose();
+                // this.lose();
             }
         }
     }
@@ -70,53 +73,54 @@ export class BlastGame {
             return;
         }
 
-        let tilesRemoved = this._matches.findConnectedGroup(this._board, x, y);
+        this.selectedTile = tile;
 
-        if (tilesRemoved.length === 0) {
-            return {
-                success: false,
-                tilesRemoved: [],
-                scoreGained: 0
-            };
+        this.updateTurn();
+    }
+
+    private updateTurn() {
+        for (let x = 0; x < this._board.width; x++) {
+            for (let y = 0; y < this._board.height; y++) {
+                console.log()
+            }
         }
 
-        for (var tileRemoved of tilesRemoved) {
-            this._board.removeTile(tileRemoved);
+        let tilesRemoved = new Array<Tile>();
+
+        if (this.selectedTile != null) {
+            tilesRemoved = this._matches.findConnectedGroup(this._board, this.selectedTile.x, this.selectedTile.y);
+            this.selectedTile = null;
         }
 
-        this.setState(GameState.REMOVING_TILES);
-
-        this._gravity.applyGravity(this._board);
+        if (tilesRemoved.length > 0) {
+            this.setState(GameState.REMOVING_TILES);
+            for (var tileRemoved of tilesRemoved) {
+                this._board.removeTile(tileRemoved);
+            }
+        }
 
         this.setState(GameState.APPLYING_GRAVITY);
+        this._gravity.applyGravity(this._board);
 
         const scoreGained = this._score.calculateScore(tilesRemoved.length);
         this._score.addScore(scoreGained);
+
         this._moves.decrementMove();
 
-        this.checkGameConditions();
-
+        this.setState(GameState.SPAWNING_TILES);
         this.fillEmptySpaces();
-    }
 
-    private checkGameConditions() {
         if (this._score.hasReachedTarget()) {
-            this.win();
+            this.setState(GameState.WIN);
             return;
         }
 
         if (!this._moves.hasMovesLeft()) {
-            this.lose();
+            this.setState(GameState.GAME_OVER);
             return;
         }
-    }
 
-    private win() {
-        this.setState(GameState.WIN);
-    }
-
-    private lose() {
-        this.setState(GameState.GAME_OVER);
+        this.setState(GameState.IDLE);
     }
 
     private setState(state: GameState) {

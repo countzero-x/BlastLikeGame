@@ -1,7 +1,9 @@
 import { GameState } from "../fsm/GameState";
 import { BlastGame } from "./BlastGame";
+import { Board } from "./Board";
 import { GameConfig } from "./GameConfig";
 import { Tile } from "./Tile";
+import { TileColor } from "./TileColor";
 import TileView from "./TileView";
 
 const { ccclass, property } = cc._decorator;
@@ -55,7 +57,9 @@ export class GameTest extends cc.Component {
     }
 
     private handleStateChanged(state: GameState) {
+        console.log(state);
         this.updateView();
+        GameTest.printBoard(this.game._board);
     }
 
     private gridToWorldPos(x: number, y: number): cc.Vec3 {
@@ -134,5 +138,49 @@ export class GameTest extends cc.Component {
 
         this.tilesContainer.addChild(tileNode);
         return tileView;
+    }
+
+
+    public static printBoard(board: Board): void {
+        console.log('\n=== Board State ===');
+
+        // Выводим сверху вниз (от максимального y к 0)
+        for (let y = board.height - 1; y >= 0; y--) {
+            let row = `y=${y}: `;
+
+            for (let x = 0; x < board.width; x++) {
+                const tile = board.getTile(x, y);
+
+                if (!tile || tile.isEmpty) {
+                    row += '[ ] ';
+                } else {
+                    // Сокращенное название цвета
+                    const colorChar = this.getColorChar(tile.color);
+                    row += `[${colorChar}] `;
+                }
+            }
+
+            console.log(row);
+        }
+
+        // Выводим подписи колонок
+        let footer = '     ';
+        for (let x = 0; x < board.width; x++) {
+            footer += ` ${x}  `;
+        }
+        console.log(footer);
+        console.log('==================\n');
+    }
+
+    private static getColorChar(color: TileColor): string {
+        switch (color) {
+            case TileColor.RED: return 'R';
+            case TileColor.BLUE: return 'B';
+            case TileColor.GREEN: return 'G';
+            case TileColor.YELLOW: return 'Y';
+            case TileColor.PURPLE: return 'P';
+            case TileColor.EMPTY: return ' ';
+            default: return '?';
+        }
     }
 }

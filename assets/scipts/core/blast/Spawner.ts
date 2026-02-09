@@ -6,11 +6,12 @@ import { TileColor } from "./TileColor";
 export class Spawner {
 
     public generate(board: Board) {
-        board.clear();
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
-                const tile = this.createRandomTile(x, y);
-                board.setTile(x, y, tile);
+                if (board.getTile(x, y) == null || board.getTile(x, y).isEmpty) {
+                    const tile = this.createRandomTile(x, y);
+                    board.setTile(x, y, tile);
+                }
             }
         }
     }

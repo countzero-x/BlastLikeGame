@@ -4,8 +4,7 @@ import { TileColor } from "./TileColor";
 
 
 export class Gravity {
-
-    public applyGravity(board: Board) {
+    public applyGravity(board: Board): void {
         for (let x = 0; x < board.width; x++) {
             const tiles: Tile[] = [];
 
@@ -19,8 +18,8 @@ export class Gravity {
 
             for (let i = 0; i < tiles.length; i++) {
                 const tile = tiles[i];
-                const newY = i;
-                board.setTile(x, newY, tile);
+                tile.y = i; // Обновляем координату y у тайла
+                board.setTile(x, i, tile);
             }
 
             for (let y = tiles.length; y < board.height; y++) {

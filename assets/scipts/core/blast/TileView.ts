@@ -28,7 +28,7 @@ export default class TileView extends cc.Component {
 
     public setTile(tile: Tile): void {
         this.tile = tile;
-        // this.updateVisual();
+        this.updateVisual();
     }
 
     private updateVisual(): void {

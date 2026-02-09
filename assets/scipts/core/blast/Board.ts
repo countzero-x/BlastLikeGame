@@ -1,4 +1,5 @@
 import { Tile } from "./Tile";
+import { TileColor } from "./TileColor";
 
 export class Board {
     private tiles: Map<string, Tile>;
@@ -35,7 +36,7 @@ export class Board {
     }
 
     removeTileByPosition(x: number, y: number): void {
-        this.tiles.delete(this.getKey(x, y));
+        this.setTile(x, y, new Tile(x, y, TileColor.EMPTY));
     }
 
     isValidPosition(x: number, y: number): boolean {
