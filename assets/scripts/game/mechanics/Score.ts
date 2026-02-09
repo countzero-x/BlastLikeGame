@@ -1,4 +1,4 @@
-import { MyEvent } from "../../MyEvent";
+import { GameEvent } from "../../GameEvent";
 
 export class Score {
     public readonly targetScore: number;
@@ -6,7 +6,7 @@ export class Score {
 
     private _currentScore: number;
 
-    public scoreChanged: MyEvent<number> = new MyEvent<number>();
+    public scoreChanged: GameEvent<number> = new GameEvent<number>();
 
     constructor(targetScore: number, scoreForTile: number) {
         this._currentScore = 0;

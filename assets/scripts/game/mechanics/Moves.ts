@@ -1,11 +1,11 @@
-import { MyEvent } from "../../MyEvent";
+import { GameEvent } from "../../GameEvent";
 
 export class Moves {
     public readonly maxMoves: number;
 
     private _currentMoves: number;
 
-    public movesChanged: MyEvent<number> = new MyEvent<number>();
+    public movesChanged: GameEvent<number> = new GameEvent<number>();
 
     constructor(maxMoves: number) {
         this._currentMoves = maxMoves;

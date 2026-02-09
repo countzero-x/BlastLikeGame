@@ -6,7 +6,7 @@ import { Gravity } from "./mechanics/Gravity";
 import { InputState } from "./enums/InputState";
 import { Matches } from "./mechanics/Matches";
 import { Moves } from "./mechanics/Moves";
-import { MyEvent } from "../MyEvent";
+import { GameEvent } from "../GameEvent";
 import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
@@ -30,7 +30,7 @@ export class BlastGame {
     public _superTiles: SuperTiles;
     public _boosters: Boosters;
 
-    public stateChanged: MyEvent<GameState> = new MyEvent<GameState>();
+    public stateChanged: GameEvent<GameState> = new GameEvent<GameState>();
 
     public init() {
         this._board = new Board(GameConfig.BOARD_WIDTH, GameConfig.BOARD_HEIGHT);

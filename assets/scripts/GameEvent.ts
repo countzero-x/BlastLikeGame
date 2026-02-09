@@ -1,6 +1,6 @@
 export type Handler<T> = { action: (arg1: T) => void, caller: any }
 
-export class MyEvent<T> {
+export class GameEvent<T> {
     private _handlers: Handler<T>[] = [];
     private _onceHandlers: Handler<T>[] = [];
 
