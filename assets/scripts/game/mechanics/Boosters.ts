@@ -1,7 +1,6 @@
 import { BlastGame } from "../BlastGame";
 import { Board } from "./Board";
 import { BoosterType } from "../enums/BoosterType";
-import { GameConfig } from "../GameConfig";
 import { InputState } from "../enums/InputState";
 import { Tile } from "../views/Tile";
 
@@ -17,11 +16,14 @@ export class Boosters {
 
     private _selectedType: BoosterType
 
-    public constructor(bombCount: number, teleportCount: number) {
+    private _bombRadius: number
+
+    public constructor(bombCount: number, teleportCount: number, bombRadius: number) {
         this._bombMaxCount = bombCount;
         this._teleportMaxCount = teleportCount;
         this._bombCount = bombCount;
         this._teleportCount = teleportCount;
+        this._bombRadius = bombRadius;
     }
 
     public get selectedType(): BoosterType {
@@ -96,13 +98,11 @@ export class Boosters {
     }
 
     private applyBombBooster(selectedTile: Tile, board: Board): Tile[] {
-        const radius = GameConfig.BOOSTER_RADIUS_BOMB;
-
         const tiles: Tile[] = [];
-        for (let dx = -radius; dx <= radius; dx++) {
-            for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -this._bombRadius; dx <= this._bombRadius; dx++) {
+            for (let dy = -this._bombRadius; dy <= this._bombRadius; dy++) {
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance <= radius) {
+                if (distance <= this._bombRadius) {
                     const tile = board.getTile(selectedTile.x + dx, selectedTile.y + dy);
                     if (tile && !tile.isEmpty) {
                         tiles.push(tile);

@@ -253,6 +253,21 @@
       "__id__": 3
     },
     "_enabled": true,
+    "boardWidth": 8,
+    "boardHeight": 8,
+    "tileSize": 110,
+    "tileSpacing": 2,
+    "scorePerTile": 10,
+    "targetScore": 5000,
+    "maxMoves": 10,
+    "maxShuffles": 3,
+    "superTileRemovedCountForLine": 5,
+    "superTileRemovedCountForLineRadiusBomb": 8,
+    "superTileRemovedCountForMaxBomb": 10,
+    "superTileBombRadius": 2,
+    "boosterBombCount": 3,
+    "boosterBombRadius": 2,
+    "boosterTeleportCount": 3,
     "teleportView": {
       "__id__": 6
     },

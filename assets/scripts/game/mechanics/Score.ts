@@ -2,16 +2,16 @@ import { GameEvent } from "../../GameEvent";
 
 export class Score {
     public readonly targetScore: number;
-    public readonly scoreForTile: number;
+    public readonly scorePerTile: number;
 
     private _currentScore: number;
 
     public scoreChanged: GameEvent<number> = new GameEvent<number>();
 
-    constructor(targetScore: number, scoreForTile: number) {
+    constructor(targetScore: number, scorePerTile: number) {
         this._currentScore = 0;
         this.targetScore = targetScore;
-        this.scoreForTile = scoreForTile;
+        this.scorePerTile = scorePerTile;
     }
 
     public get currentScore(): number {
@@ -19,7 +19,7 @@ export class Score {
     }
 
     public calculateScore(tilesCount: number): number {
-        return tilesCount * tilesCount * this.scoreForTile;
+        return tilesCount * tilesCount * this.scorePerTile;
     }
 
     public addScore(points: number): void {

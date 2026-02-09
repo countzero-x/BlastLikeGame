@@ -1,5 +1,4 @@
 import { BlastGame } from "../BlastGame";
-import { GameConfig } from "../GameConfig";
 import { Tile } from "./Tile";
 
 import TileView from "./TileView";
@@ -9,6 +8,7 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class BoardView extends cc.Component {
+
     @property(cc.Node)
     private tiles: cc.Node
 
@@ -16,12 +16,16 @@ export class BoardView extends cc.Component {
     private clickNode: cc.Node
 
     private _game: BlastGame
+    private _tileSize: number;
+    private _tileSpacing: number;
     private _tileViews: TileView[][] = [];
     private _tileViewPool: TileViewPool;
 
-    public init(game: BlastGame, tileViewPool: TileViewPool) {
+    public init(game: BlastGame, tileViewPool: TileViewPool, tileSize: number, tileSpacing: number) {
         this._tileViewPool = tileViewPool;
         this._game = game;
+        this._tileSize = tileSize;
+        this._tileSpacing = tileSpacing;
     }
 
     protected onEnable(): void {
@@ -100,12 +104,12 @@ export class BoardView extends cc.Component {
     }
 
     private gridToWorldPos(x: number, y: number): cc.Vec3 {
-        const startX = -(this._game._board.width * (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING)) / 2 + GameConfig.TILE_SIZE / 2;
-        const startY = -(this._game._board.height * (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING)) / 2 + GameConfig.TILE_SIZE / 2;
+        const startX = -(this._game._board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startY = -(this._game._board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
 
         return cc.v3(
-            startX + x * (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING),
-            startY + y * (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING),
+            startX + x * (this._tileSize + this._tileSpacing),
+            startY + y * (this._tileSize + this._tileSpacing),
             0
         );
     }
@@ -113,11 +117,11 @@ export class BoardView extends cc.Component {
     private worldToGridPos(worldPos: cc.Vec2): { x: number, y: number } | null {
         const localPos = this.tiles.convertToNodeSpaceAR(worldPos);
 
-        const startX = -(this._game._board.width * (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING)) / 2 + GameConfig.TILE_SIZE / 2;
-        const startY = -(this._game._board.height * (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING)) / 2 + GameConfig.TILE_SIZE / 2;
+        const startX = -(this._game._board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startY = -(this._game._board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
 
-        const x = Math.floor((localPos.x - startX + GameConfig.TILE_SIZE / 2) / (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING));
-        const y = Math.floor((localPos.y - startY + GameConfig.TILE_SIZE / 2) / (GameConfig.TILE_SIZE + GameConfig.TILE_SPACING));
+        const x = Math.floor((localPos.x - startX + this._tileSize / 2) / (this._tileSize + this._tileSpacing));
+        const y = Math.floor((localPos.y - startY + this._tileSize / 2) / (this._tileSize + this._tileSpacing));
 
         return { x, y };
     }

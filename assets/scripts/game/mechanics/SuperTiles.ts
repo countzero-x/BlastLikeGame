@@ -1,17 +1,28 @@
 import { Board } from "./Board";
-import { GameConfig } from "../GameConfig";
 import { SuperTileType } from "../enums/SuperTileType";
 import { SuperTile } from "../views/SuperTile";
 import { Tile } from "../views/Tile";
 
 export class SuperTiles {
 
+    private _countForLine: number;
+    private _countForLineRadiusBomb: number;
+    private _countForMaxBomb: number;
+    private _bombRadius: number;
+
+    public constructor(countForLine: number, countForLineRadiusBomb: number, countForMaxBomb: number, bombRadius: number) {
+        this._countForLine = countForLine;
+        this._countForLineRadiusBomb = countForLineRadiusBomb;
+        this._countForMaxBomb = countForMaxBomb;
+        this._bombRadius = bombRadius;
+    }
+
     public GetSuperTileType(tilesRemoved: number): SuperTileType {
-        if (tilesRemoved >= GameConfig.SUPERTILE_REMOVED_COUNT_FOR_MAX_BOMB) {
+        if (tilesRemoved >= this._countForMaxBomb) {
             return SuperTileType.MAX_BOMB;
-        } else if (tilesRemoved >= GameConfig.SUPERTILE_REMOVED_COUNT_FOR_RADIUS_BOMB) {
+        } else if (tilesRemoved >= this._countForLineRadiusBomb) {
             return SuperTileType.RADIUS_BOMB;
-        } else if (tilesRemoved >= GameConfig.SUPERTILE_REMOVED_COUNT_FOR_LINE) {
+        } else if (tilesRemoved >= this._countForLine) {
             return Math.random() > 0.5 ? SuperTileType.HORIZONTAL : SuperTileType.VERTICAL;
         } else {
             return SuperTileType.NONE;
@@ -25,7 +36,7 @@ export class SuperTiles {
             case SuperTileType.VERTICAL:
                 return this.activateColumn(superTile, board);
             case SuperTileType.RADIUS_BOMB:
-                return this.activateRadius(superTile, board, GameConfig.SUPERTILE_RADIUS_BOMB);
+                return this.activateRadius(superTile, board);
             case SuperTileType.MAX_BOMB:
                 return this.activateFullBoard(superTile, board);
             default:
@@ -55,12 +66,12 @@ export class SuperTiles {
         return tiles;
     }
 
-    private activateRadius(superTile: SuperTile, board: Board, radius: number): Tile[] {
+    private activateRadius(superTile: SuperTile, board: Board): Tile[] {
         const tiles: Tile[] = [];
-        for (let dx = -radius; dx <= radius; dx++) {
-            for (let dy = -radius; dy <= radius; dy++) {
+        for (let dx = -this._bombRadius; dx <= this._bombRadius; dx++) {
+            for (let dy = -this._bombRadius; dy <= this._bombRadius; dy++) {
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance <= radius) {
+                if (distance <= this._bombRadius) {
                     const tile = board.getTile(superTile.x + dx, superTile.y + dy);
                     if (tile && !tile.isEmpty) {
                         tiles.push(tile);

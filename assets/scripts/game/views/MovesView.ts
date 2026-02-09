@@ -1,4 +1,4 @@
-import { BlastGame } from "../BlastGame";
+import { Moves } from "../mechanics/Moves";
 
 const { ccclass, property } = cc._decorator;
 
@@ -8,13 +8,13 @@ export class MovesView extends cc.Component {
     @property(cc.Label)
     private label: cc.Label
 
-    private _game: BlastGame
+    private _moves: Moves;
 
-    public init(game: BlastGame) {
-        this._game = game;
+    public init(moves: Moves) {
+        this._moves = moves;
     }
 
     public updateView() {
-        this.label.string = this._game._moves.currentMoves.toString();
+        this.label.string = this._moves.currentMoves.toString();
     }
 }

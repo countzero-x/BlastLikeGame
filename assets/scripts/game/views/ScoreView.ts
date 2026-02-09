@@ -1,4 +1,4 @@
-import { BlastGame } from "../BlastGame";
+import { Score } from "../mechanics/Score";
 
 const { ccclass, property } = cc._decorator;
 
@@ -8,13 +8,13 @@ export class ScoreView extends cc.Component {
     @property(cc.Label)
     private label: cc.Label;
 
-    private _game: BlastGame;
+    private _score: Score;
 
-    public init(game: BlastGame) {
-        this._game = game;
+    public init(game: Score) {
+        this._score = game;
     }
 
     public updateView() {
-        this.label.string = `${this._game._score.currentScore.toString()} / ${this._game._score.targetScore}`;
+        this.label.string = `${this._score.currentScore.toString()} / ${this._score.targetScore}`;
     }
 }

@@ -1,6 +1,5 @@
 import { Board } from "./mechanics/Board";
 import { Boosters } from "./mechanics/Boosters";
-import { GameConfig } from "./GameConfig";
 import { GameState } from "./enums/GameState";
 import { Gravity } from "./mechanics/Gravity";
 import { InputState } from "./enums/InputState";
@@ -31,18 +30,6 @@ export class BlastGame {
     public _boosters: Boosters;
 
     public stateChanged: GameEvent<GameState> = new GameEvent<GameState>();
-
-    public init() {
-        this._board = new Board(GameConfig.BOARD_WIDTH, GameConfig.BOARD_HEIGHT);
-        this._score = new Score(GameConfig.TARGET_SCORE, GameConfig.SCORE_FOR_TILE);
-        this._moves = new Moves(GameConfig.MAX_MOVES);
-        this._shuffle = new Shuffle(GameConfig.MAX_SHUFFLES);
-        this._spawner = new Spawner();
-        this._matches = new Matches();
-        this._gravity = new Gravity();
-        this._superTiles = new SuperTiles();
-        this._boosters = new Boosters(GameConfig.BOOSTER_BOMB_COUNT, GameConfig.BOOSTER_TELEPORT_COUNT);
-    }
 
     public start() {
         this._inputState = InputState.NORMAL;
