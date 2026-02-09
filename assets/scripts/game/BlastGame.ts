@@ -128,7 +128,7 @@ export class BlastGame {
             }
         }
         else {
-            tilesRemoved.push(...this.boosters.proccessClick(this, tile));
+            tilesRemoved.push(...this.boosters.processClick(this, tile));
 
             for (let i = 0; i < tilesRemoved.length; i++) {
                 const tileRemoved = tilesRemoved[i];
