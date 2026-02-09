@@ -37,9 +37,7 @@ export class BlastGame {
     }
 
     public start() {
-        this._spawner.generate(this._board);
-        this.setState(GameState.SPAWNING_TILES);
-        this.setState(GameState.IDLE);
+        this.updateBoard();
     }
 
     public finish() {
@@ -67,9 +65,35 @@ export class BlastGame {
         this.updateTurn();
     }
 
-    private updateTurn() {
+    private updateBoard() {
         this._shuffle.reset();
 
+        this._gravity.applyGravity(this._board);
+        this.setState(GameState.APPLYING_GRAVITY);
+
+        this._spawner.generate(this._board);
+        this.setState(GameState.SPAWNING_TILES);
+
+        for (let attempt = 0; attempt < this._shuffle.attempts; attempt++) {
+            if (!this._matches.hasAvailableMoves(this._board)) {
+                this._shuffle.shuffle(this._board);
+                this.setState(GameState.SHUFFLING);
+            }
+            else {
+                break;
+            }
+        }
+
+        if (!this._matches.hasAvailableMoves(this._board)) {
+            this.setState(GameState.LOSE);
+        }
+        else {
+            //todo: некорректно т.к. дальше может быть луз и т.д.
+            this.setState(GameState.IDLE);
+        }
+    }
+
+    private updateTurn() {
         if (this.selectedTile == null) {
             return;
         }
@@ -88,26 +112,12 @@ export class BlastGame {
         }
         this.setState(GameState.REMOVING_TILES);
 
-        this._gravity.applyGravity(this._board);
-        this.setState(GameState.APPLYING_GRAVITY);
+        this.updateBoard();
 
         const scoreGained = this._score.calculateScore(tilesRemoved.length);
         this._score.addScore(scoreGained);
 
         this._moves.decrementMove();
-
-        this._spawner.generate(this._board);
-        this.setState(GameState.SPAWNING_TILES);
-
-        for (let attempt = 0; attempt < this._shuffle.attempts; attempt++) {
-            if (!this._matches.hasAvailableMoves(this._board)) {
-                this._shuffle.shuffle(this._board);
-                this.setState(GameState.SHUFFLING);
-            }
-            else {
-                break;
-            }
-        }
 
         if (this._score.hasReachedTarget()) {
             this.setState(GameState.WIN);
@@ -115,11 +125,6 @@ export class BlastGame {
         }
 
         if (!this._moves.hasMovesLeft()) {
-            this.setState(GameState.LOSE);
-            return;
-        }
-
-        if (!this._matches.hasAvailableMoves(this._board)) {
             this.setState(GameState.LOSE);
             return;
         }
