@@ -1,5 +1,5 @@
-import { SuperTile } from "./SuperTile";
-import { Tile } from "./Tile";
+import { SuperTile } from "../SuperTile";
+import { Tile } from "../Tile";
 
 // TileView.ts - полная версия с супер-тайлами
 const { ccclass, property } = cc._decorator;
