@@ -3,17 +3,12 @@ import { GameConfig } from "../GameConfig";
 import { Tile } from "./Tile";
 
 import TileView from "./TileView";
+import { TileViewPool } from "./TileViewPool";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class BoardView extends cc.Component {
-
-    private static readonly TILES_POOL_NAME = 'TilesPool';
-
-    @property(cc.Prefab)
-    private tilePrefab: cc.Prefab
-
     @property(cc.Node)
     private tiles: cc.Node
 
@@ -22,14 +17,19 @@ export class BoardView extends cc.Component {
 
     private _game: BlastGame
     private _tileViews: TileView[][] = [];
+    private _tileViewPool: TileViewPool;
 
-    private pool: cc.NodePool;
-
-    public init(game: BlastGame) {
-        this.pool = new cc.NodePool(BoardView.TILES_POOL_NAME);
-
+    public init(game: BlastGame, tileViewPool: TileViewPool) {
+        this._tileViewPool = tileViewPool;
         this._game = game;
+    }
+
+    protected onEnable(): void {
         this.clickNode.on(cc.Node.EventType.TOUCH_END, this.onTouch, this);
+    }
+
+    protected onDisable(): void {
+        this.clickNode.off(cc.Node.EventType.TOUCH_END, this.onTouch, this);
     }
 
     public updateView() {
@@ -44,7 +44,7 @@ export class BoardView extends cc.Component {
                 }
 
                 if (this._tileViews[x][y] != null) {
-                    this.pool.put(this._tileViews[x][y].node);
+                    this._tileViewPool.put(this._tileViews[x][y]);
                     this._tileViews[x][y] = null;
                 }
 
@@ -92,18 +92,11 @@ export class BoardView extends cc.Component {
             return;
         }
 
-        let tileNode = this.pool.get();
-        if (tileNode == null) {
-            tileNode = cc.instantiate(this.tilePrefab);
-        }
+        const view = this._tileViewPool.get(tile);
+        view.node.position = this.gridToWorldPos(tile.x, tile.y);
 
-        const tileView = tileNode.getComponent(TileView);
-
-        tileView.setTile(tile);
-        tileNode.position = this.gridToWorldPos(tile.x, tile.y);
-
-        this.tiles.addChild(tileNode);
-        return tileView;
+        this.tiles.addChild(view.node);
+        return view;
     }
 
     private gridToWorldPos(x: number, y: number): cc.Vec3 {

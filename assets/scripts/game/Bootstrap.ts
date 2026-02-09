@@ -8,6 +8,7 @@ import { BlastGame } from "./BlastGame";
 import { BoosterType } from "./enums/BoosterType";
 import { GameState } from "./enums/GameState";
 import { OverlayView } from "./views/OverlayView";
+import { TileViewPool } from "./views/TileViewPool";
 
 const { ccclass, property } = cc._decorator;
 
@@ -53,7 +54,11 @@ export class Bootstrap extends cc.Component {
 
         this.bombView.init(this._game, BoosterType.BOMB);
         this.teleportView.init(this._game, BoosterType.TELEPORT);
-        this.boardView.init(this._game);
+
+        const tileViewPool = new TileViewPool();
+        tileViewPool.init();
+
+        this.boardView.init(this._game, tileViewPool);
 
         this._game.stateChanged.subscribe(this.handleStateChanged, this);
         this._game.start();

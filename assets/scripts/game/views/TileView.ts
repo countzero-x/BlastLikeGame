@@ -42,3 +42,4 @@ export default class TileView extends cc.Component {
         return this._tile;
     }
 }
+
