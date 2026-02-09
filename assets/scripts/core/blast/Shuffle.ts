@@ -3,12 +3,12 @@ import { Tile } from "./Tile";
 
 
 export class Shuffle {
-    private readonly _maxAttempts: number;
+    public readonly maxAttempts: number;
 
     private _attempts: number;
 
     public constructor(maxAttempts: number) {
-        this._maxAttempts = maxAttempts;
+        this.maxAttempts = maxAttempts;
         this._attempts = maxAttempts;
     }
 
@@ -50,6 +50,6 @@ export class Shuffle {
     }
 
     public reset() {
-        this._attempts = this._maxAttempts;
+        this._attempts = this.maxAttempts;
     }
 }

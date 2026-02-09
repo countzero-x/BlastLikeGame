@@ -116,7 +116,7 @@ export class Boosters {
     }
 
     private applyTeleportBooster(game: BlastGame): Tile[] {
-        game._board.moveTile(this._firstTeleportTile, this._secondTeleportTile);
+        game._board.swapTiles(this._firstTeleportTile, this._secondTeleportTile);
 
         this._firstTeleportTile = null;
         this._secondTeleportTile = null;

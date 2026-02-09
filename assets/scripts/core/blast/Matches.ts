@@ -1,4 +1,5 @@
 import { Board } from "./Board";
+import { SuperTile } from "./SuperTile";
 import { Tile } from "./Tile";
 import { TileColor } from "./TileColor";
 
@@ -14,9 +15,9 @@ export class Matches {
                     continue;
                 }
 
-                // if (tile instanceof SuperTile) {
-                //     return true;
-                // }
+                if (tile instanceof SuperTile) {
+                    return true;
+                }
 
                 const group = this.findConnectedGroup(board, x, y);
                 if (group.length >= 2) {

@@ -2,7 +2,7 @@ import { Tile } from "./Tile";
 import { TileColor } from "./TileColor";
 
 export class Board {
-    private tiles: Map<string, Tile>;
+    private tiles: Map<number, Tile>;
     readonly width: number;
     readonly height: number;
 
@@ -12,58 +12,74 @@ export class Board {
         this.tiles = new Map();
     }
 
-    // todo: втф
-    private getKey(x: number, y: number): string {
-        return `${x},${y}`;
-    }
-
-    getTile(x: number, y: number): Tile | null {
+    public getTile(x: number, y: number): Tile | undefined {
         if (!this.isValidPosition(x, y)) {
-            return null;
+            return undefined;
         }
-        return this.tiles.get(this.getKey(x, y)) || null;
+        return this.tiles.get(this.getKey(x, y));
     }
 
-    setTile(x: number, y: number, tile: Tile): void {
-        tile.setPosition(x, y);
-        if (this.isValidPosition(tile.x, tile.y)) {
-            this.tiles.set(this.getKey(tile.x, tile.y), tile);
-        }
+    public setTile(x: number, y: number, tile: Tile): void {
+        this.validatePosition(x, y);
+        this.tiles.set(this.getKey(x, y), tile);
     }
 
-    moveTile(left: Tile, right: Tile) {
-        const fX = left.x;
-        const fY = left.y;
+    public swapTiles(tileA: Tile, tileB: Tile): void {
+        const posA = { x: tileA.x, y: tileA.y };
+        const posB = { x: tileB.x, y: tileB.y };
 
-        const sX = right.x;
-        const sY = right.y;
+        this.validatePosition(posA.x, posA.y);
+        this.validatePosition(posB.x, posB.y);
 
-        this.setTile(fX, fY, right);
-        this.setTile(sX, sY, left);
+        tileA.setPosition(posB.x, posB.y);
+        tileB.setPosition(posA.x, posA.y);
+
+        this.tiles.set(this.getKey(posB.x, posB.y), tileA);
+        this.tiles.set(this.getKey(posA.x, posA.y), tileB);
     }
 
     public removeTile(tile: Tile): void {
         this.removeTileByPosition(tile.x, tile.y);
     }
 
-    removeTileByPosition(x: number, y: number): void {
-        this.setTile(x, y, new Tile(x, y, TileColor.EMPTY));
+    public removeTileByPosition(x: number, y: number): void {
+        if (!this.isValidPosition(x, y)) {
+            return;
+        }
+        this.tiles.delete(this.getKey(x, y));
     }
 
-    isValidPosition(x: number, y: number): boolean {
-        return x >= 0 && x < this.width && y >= 0 && y < this.height;
+    public hasTile(x: number, y: number): boolean {
+        if (!this.isValidPosition(x, y)) {
+            return false;
+        }
+        return this.tiles.has(this.getKey(x, y));
     }
 
-    isEmpty(x: number, y: number): boolean {
+    public isEmpty(x: number, y: number): boolean {
         const tile = this.getTile(x, y);
         return !tile || tile.isEmpty;
     }
 
-    getAllTiles(): Tile[] {
+    public isValidPosition(x: number, y: number): boolean {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height;
+    }
+
+    public getAllTiles(): Tile[] {
         return Array.from(this.tiles.values());
     }
 
-    clear(): void {
+    public clear(): void {
         this.tiles.clear();
+    }
+
+    private getKey(x: number, y: number): number {
+        return y * this.width + x;
+    }
+
+    private validatePosition(x: number, y: number): void {
+        if (!this.isValidPosition(x, y)) {
+            throw new Error(`Position out of bounds: (${x}, ${y}). Valid range: 0-${this.width - 1}, 0-${this.height - 1}`);
+        }
     }
 }
