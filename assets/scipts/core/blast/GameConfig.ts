@@ -4,6 +4,9 @@ export class GameConfig {
     static readonly DEFAULT_BOARD_WIDTH = 8;
     static readonly DEFAULT_BOARD_HEIGHT = 8;
 
+    static readonly TILE_SIZE = 50;
+    static readonly TILE_SPACING = 2;
+
     // Очки
     static readonly SCORE_FOR_TILE = 10;
     static readonly TARGET_SCORE = 1000;

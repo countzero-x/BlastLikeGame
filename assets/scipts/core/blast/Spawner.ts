@@ -6,23 +6,18 @@ import { TileColor } from "./TileColor";
 export class Spawner {
 
     public generate(board: Board) {
+        board.clear();
         for (let x = 0; x < board.width; x++) {
-            const emptyPositions: number[] = [];
-
-            for (let y = board.height - 1; y >= 0; y--) {
-                const tile = board.getTile(x, y);
-                if (tile && tile.isEmpty) {
-                    emptyPositions.push(y);
-                    const newTile = this.createRandomTile(x, y);
-                    board.setTile(x, y, newTile)
-                }
+            for (let y = 0; y < board.height; y++) {
+                const tile = this.createRandomTile(x, y);
+                board.setTile(x, y, tile);
             }
         }
     }
 
     public createRandomTile(x: number, y: number): Tile {
         // todo: более гибко
-        const color = Math.floor(Math.random() * Object.keys(TileColor).length);
+        const color = Math.floor(Math.random() * 5);
         return new Tile(x, y, color);
     }
 

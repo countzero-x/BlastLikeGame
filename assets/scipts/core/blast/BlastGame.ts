@@ -4,19 +4,23 @@ import { GameConfig } from "./GameConfig";
 import { Gravity } from "./Gravity";
 import { Matches } from "./Matches";
 import { Moves } from "./Moves";
+import { MyEvent } from "./MyEvent";
 import { Score } from "./Score";
 import { Shuffle } from "./Shuffle";
 import { Spawner } from "./Spawner";
 
 export class BlastGame {
-    private state: GameState;
-    private _board: Board;
-    private _score: Score;
-    private _moves: Moves;
-    private _spawner: Spawner;
-    private _shuffle: Shuffle;
-    private _matches: Matches;
-    private _gravity: Gravity;
+    // todo не паблик
+    public _state: GameState;
+    public _board: Board;
+    public _score: Score;
+    public _moves: Moves;
+    public _spawner: Spawner;
+    public _shuffle: Shuffle;
+    public _matches: Matches;
+    public _gravity: Gravity;
+
+    public stateChanged: MyEvent<GameState> = new MyEvent<GameState>();
 
     public init() {
         this._board = new Board(GameConfig.DEFAULT_BOARD_WIDTH, GameConfig.DEFAULT_BOARD_HEIGHT);
@@ -29,8 +33,9 @@ export class BlastGame {
     }
 
     public start() {
-        this.reset();
+        this.setState(GameState.SPAWNING_TILES);
         this.fillEmptySpaces();
+        this.setState(GameState.IDLE);
     }
 
     public finish() {
@@ -40,7 +45,6 @@ export class BlastGame {
     private reset() {
         this._score.reset();
         this._moves.reset();
-        this.state = GameState.SPAWNING_TILES;
     }
 
     private fillEmptySpaces() {
@@ -48,7 +52,7 @@ export class BlastGame {
 
         if (!this._matches.hasAvailableMoves(this._board)) {
             if (this._shuffle.shuffleAvaliable()) {
-                this.state = GameState.SHUFFLING;
+                this.setState(GameState.SHUFFLING);
                 this._shuffle.shuffle(this._board);
             } else {
                 this.lose();
@@ -57,7 +61,7 @@ export class BlastGame {
     }
 
     public makeMove(x: number, y: number) {
-        if (this.state != GameState.IDLE) {
+        if (this._state != GameState.IDLE) {
             return;
         }
 
@@ -80,7 +84,12 @@ export class BlastGame {
             this._board.removeTile(tileRemoved);
         }
 
+        this.setState(GameState.REMOVING_TILES);
+
         this._gravity.applyGravity(this._board);
+
+        this.setState(GameState.APPLYING_GRAVITY);
+
         const scoreGained = this._score.calculateScore(tilesRemoved.length);
         this._score.addScore(scoreGained);
         this._moves.decrementMove();
@@ -103,10 +112,15 @@ export class BlastGame {
     }
 
     private win() {
-        this.state = GameState.WIN;
+        this.setState(GameState.WIN);
     }
 
     private lose() {
-        this.state = GameState.GAME_OVER;
+        this.setState(GameState.GAME_OVER);
+    }
+
+    private setState(state: GameState) {
+        this._state = state;
+        this.stateChanged.invoke(this._state);
     }
 }

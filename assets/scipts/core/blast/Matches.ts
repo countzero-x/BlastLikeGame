@@ -4,8 +4,6 @@ import { TileColor } from "./TileColor";
 
 export class Matches {
     public hasAvailableMoves(board: Board): boolean {
-        cc.log('Проверка доступных ходов...');
-
         let possibleMoves = 0;
 
         for (let x = 0; x < board.width; x++) {
