@@ -18,7 +18,7 @@ export class Gravity {
 
             for (let i = 0; i < tiles.length; i++) {
                 const tile = tiles[i];
-                tile.y = i; // Обновляем координату y у тайла
+                tile.y = i;
                 board.setTile(x, i, tile);
             }
 

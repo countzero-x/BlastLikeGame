@@ -42,7 +42,6 @@ export class GameEvent<T> {
     public invoke(arg: T): void {
         const handlers = [...this._handlers];
         handlers.forEach((handler, i) => {
-            // console.log(handler, i, handlers.length);
             handler.action.call(handler.caller, arg);
         });
 

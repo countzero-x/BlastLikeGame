@@ -4,6 +4,7 @@ import { Tile } from "../Tile";
 import { TileColor } from "../enums/TileColor";
 
 export class Matches {
+    
     public hasAvailableMoves(board: Board): boolean {
         let possibleMoves = 0;
 

@@ -20,7 +20,11 @@ export class BoardView extends cc.Component {
     private _game: BlastGame
     private _tileViews: TileView[][] = [];
 
+    private pool: cc.NodePool;
+
     public init(game: BlastGame) {
+        this.pool = new cc.NodePool('TilesPool');
+
         this._game = game;
         this.clickNode.on(cc.Node.EventType.TOUCH_END, this.onTouch, this);
     }
@@ -37,7 +41,7 @@ export class BoardView extends cc.Component {
                 }
 
                 if (this._tileViews[x][y] != null) {
-                    this._tileViews[x][y].node.destroy()
+                    this.pool.put(this._tileViews[x][y].node);
                     this._tileViews[x][y] = null;
                 }
 
@@ -86,7 +90,11 @@ export class BoardView extends cc.Component {
             return;
         }
 
-        const tileNode = cc.instantiate(this.tilePrefab);
+        let tileNode = this.pool.get();
+        if (tileNode == null) {
+            tileNode = cc.instantiate(this.tilePrefab);
+        }
+
         const tileView = tileNode.getComponent(TileView);
 
         tileView.setTile(tile);
