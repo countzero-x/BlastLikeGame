@@ -32,7 +32,6 @@ export class BombBooster implements IBooster {
 
         const tiles = this.getBombAffectedTiles(tile, ctx.board);
         this._count--;
-        // после использования возвращаемся к NORMAL
         ctx.setInputState(InputState.NORMAL);
         return tiles;
     }
