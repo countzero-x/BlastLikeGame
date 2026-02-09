@@ -5,7 +5,7 @@ import { BoosterType } from "./BoosterType";
 import { GameConfig } from "./GameConfig";
 import { Tile } from "./Tile";
 import { TileColor } from "./TileColor";
-import TileView from "./TileView";
+import TileView from "./views/TileView";
 
 const { ccclass, property } = cc._decorator;
 
