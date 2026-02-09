@@ -84,7 +84,6 @@ export class BoardView extends cc.Component {
         return x >= 0 && x < this._game._board.width && y >= 0 && y < this._game._board.height;
     }
 
-    // BoardView.ts - метод createTileView()
     private createTileView(tile: Tile): TileView {
         if (tile == null) {
             return;
@@ -98,7 +97,7 @@ export class BoardView extends cc.Component {
         const tileView = tileNode.getComponent(TileView);
 
         tileView.setTile(tile);
-        tileNode.position = this.gridToWorldPos(tile.x, tile.y);  // Прямое присваивание
+        tileNode.position = this.gridToWorldPos(tile.x, tile.y);
 
         this.tiles.addChild(tileNode);
         return tileView;
