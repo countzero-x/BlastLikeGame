@@ -25,39 +25,39 @@ const { ccclass, property } = cc._decorator;
 export class Bootstrap extends cc.Component {
     @property()
     private boardWidth = 8;
-    @property
+    @property()
     private boardHeight = 8;
 
-    @property
+    @property()
     private tileSize = 110;
-    @property
+    @property()
     private tileSpacing = 2;
 
-    @property
+    @property()
     private scorePerTile = 10;
-    @property
+    @property()
     private targetScore = 5000;
 
-    @property
+    @property()
     private maxMoves = 10;
 
-    @property
+    @property()
     private maxShuffles = 3;
 
-    @property
+    @property()
     private superTileRemovedCountForLine = 5;
-    @property
+    @property()
     private superTileRemovedCountForLineRadiusBomb = 8;
-    @property
+    @property()
     private superTileRemovedCountForMaxBomb = 10;
 
-    @property
+    @property()
     private superTileBombRadius = 2;
-    @property
+    @property()
     private boosterBombCount = 3;
-    @property
+    @property()
     private boosterBombRadius = 2;
-    @property
+    @property()
     private boosterTeleportCount = 3;
 
     @property(BoosterView)
@@ -90,17 +90,17 @@ export class Bootstrap extends cc.Component {
     private _game: BlastGame
 
     protected onLoad(): void {
-        this._game = new BlastGame();
-
-        this._game.board = new Board(this.boardWidth, this.boardHeight);
-        this._game.score = new Score(this.targetScore, this.scorePerTile);
-        this._game.moves = new Moves(this.maxMoves);
-        this._game.shuffle = new Shuffle(this.maxShuffles);
-        this._game.spawner = new Spawner();
-        this._game.matches = new Matches();
-        this._game.gravity = new Gravity();
-        this._game.superTiles = new SuperTiles(this.superTileRemovedCountForLine, this.superTileRemovedCountForLineRadiusBomb, this.superTileRemovedCountForMaxBomb, this.superTileBombRadius);
-        this._game.boosters = new Boosters(this.boosterBombCount, this.boosterTeleportCount, this.boosterBombRadius);
+        this._game = new BlastGame(
+            new Board(this.boardWidth, this.boardHeight),
+            new Score(this.targetScore, this.scorePerTile),
+            new Moves(this.maxMoves),
+            new Spawner(),
+            new Shuffle(this.maxShuffles),
+            new Matches(),
+            new Gravity(),
+            new SuperTiles(this.superTileRemovedCountForLine, this.superTileRemovedCountForLineRadiusBomb, this.superTileRemovedCountForMaxBomb, this.superTileBombRadius),
+            new Boosters(this.boosterBombCount, this.boosterTeleportCount, this.boosterBombRadius)
+        );
 
         this.scoreView.init(this._game.score);
         this.movesView.init(this._game.moves);
