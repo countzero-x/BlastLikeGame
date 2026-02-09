@@ -45,6 +45,7 @@ export class BlastGame {
     }
 
     public start() {
+        this._inputState = InputState.NORMAL;
         this.updateBoard();
     }
 
@@ -113,6 +114,20 @@ export class BlastGame {
             tilesRemoved.push(...this._matches.findConnectedGroup(this._board, tile.x, tile.y));
             const initialRemovedCount = tilesRemoved.length;
 
+            if (tile instanceof SuperTile) {
+                tilesRemoved.push(tile);
+            }
+
+            for (let i = 0; i < tilesRemoved.length; i++) {
+                const tileRemoved = tilesRemoved[i];
+
+                this._board.removeTile(tileRemoved);
+
+                if (tileRemoved instanceof SuperTile) {
+                    tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
+                }
+            }
+
             const superTileType = this._superTiles.GetSuperTileType(initialRemovedCount);
             if (superTileType != SuperTileType.NONE) {
                 const superTile = this._spawner.createSuperTile(tile.x, tile.y, superTileType);
@@ -127,15 +142,15 @@ export class BlastGame {
         }
         else {
             tilesRemoved.push(...this._boosters.proccessClick(this, tile));
-        }
 
-        for (let i = 0; i < tilesRemoved.length; i++) {
-            const tileRemoved = tilesRemoved[i];
+            for (let i = 0; i < tilesRemoved.length; i++) {
+                const tileRemoved = tilesRemoved[i];
 
-            this._board.removeTile(tileRemoved);
+                this._board.removeTile(tileRemoved);
 
-            if (tileRemoved instanceof SuperTile) {
-                tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
+                if (tileRemoved instanceof SuperTile) {
+                    tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
+                }
             }
         }
 

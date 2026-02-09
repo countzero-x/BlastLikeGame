@@ -10,12 +10,17 @@ export class Boosters {
     private _bombCount: number;
     private _teleportCount: number;
 
+    private _bombMaxCount: number;
+    private _teleportMaxCount: number;
+
     private _firstTeleportTile: Tile;
     private _secondTeleportTile: Tile;
 
     private _selectedType: BoosterType
 
     public constructor(bombCount: number, teleportCount: number) {
+        this._bombMaxCount = bombCount;
+        this._teleportMaxCount = teleportCount;
         this._bombCount = bombCount;
         this._teleportCount = teleportCount;
     }
@@ -36,6 +41,8 @@ export class Boosters {
         this._selectedType = BoosterType.NONE;
         this._firstTeleportTile = null;
         this._secondTeleportTile = null;
+        this._bombCount = this._bombMaxCount;
+        this._teleportCount = this._teleportMaxCount;
     }
 
     public apply(game: BlastGame, type: BoosterType) {
@@ -48,7 +55,9 @@ export class Boosters {
                 break;
             case BoosterType.NONE:
                 game._inputState = InputState.NORMAL;
-                this.reset();
+                this._selectedType = BoosterType.NONE;
+                this._firstTeleportTile = null;
+                this._secondTeleportTile = null;
         }
         this._selectedType = type;
     }

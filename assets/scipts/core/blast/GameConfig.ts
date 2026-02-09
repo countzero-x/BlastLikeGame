@@ -1,8 +1,8 @@
 
 export class GameConfig {
     // Размеры доски
-    static readonly BOARD_WIDTH = 8;
-    static readonly BOARD_HEIGHT = 8;
+    static readonly BOARD_WIDTH = 4;
+    static readonly BOARD_HEIGHT = 4;
 
     static readonly TILE_SIZE = 50;
     static readonly TILE_SPACING = 2;
