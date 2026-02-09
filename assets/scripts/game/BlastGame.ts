@@ -22,8 +22,8 @@ type TurnOutcome = {
 };
 
 export class BlastGame {
-    public inputState: InputState = InputState.NORMAL;
-    public state: GameState = GameState.IDLE;
+    private _inputState: InputState = InputState.NORMAL;
+    private _state: GameState = GameState.IDLE;
 
     public readonly board: Board;
     public readonly score: Score;
@@ -64,18 +64,18 @@ export class BlastGame {
         });
     }
 
-    public getState() {
-        return this.state;
+    public get state() {
+        return this._state;
     }
 
-    public getInputState() {
-        return this.inputState;
+    public get inputState() {
+        return this._inputState;
     }
 
     public start() {
-        this.inputState = InputState.NORMAL;
+        this._inputState = InputState.NORMAL;
         this.shuffleBoard();
-        if (this.state !== GameState.LOSE) this.setState(GameState.IDLE);
+        if (this._state !== GameState.LOSE) this.setState(GameState.IDLE);
     }
 
     public finish() {
@@ -83,7 +83,7 @@ export class BlastGame {
     }
 
     public makeMove(x: number, y: number) {
-        if (this.state !== GameState.IDLE) {
+        if (this._state !== GameState.IDLE) {
             return;
         }
 
@@ -96,7 +96,7 @@ export class BlastGame {
     }
 
     private reset() {
-        this.inputState = InputState.NORMAL;
+        this._inputState = InputState.NORMAL;
         this.score.reset();
         this.moves.reset();
         this.boosters.reset();
@@ -105,7 +105,7 @@ export class BlastGame {
 
     private processTurn(clicked: Tile) {
         const outcome =
-            this.inputState == InputState.NORMAL
+            this._inputState == InputState.NORMAL
                 ? this.applyNormalClick(clicked)
                 : this.applyBoosterClick(clicked);
 
@@ -138,7 +138,7 @@ export class BlastGame {
             ? [...match, clicked]
             : [...match];
 
-        const removedCount = this.removeWithSuperCascade(toRemove);
+        const removedCount = this.removeTiles(toRemove);
 
         this.trySpawnSuperTile(clicked.x, clicked.y, initialMatchCount);
 
@@ -147,12 +147,12 @@ export class BlastGame {
 
     private applyBoosterClick(clicked: Tile): TurnOutcome {
         const toRemove = this.boosters.processClick(clicked);
-        const removedCount = this.removeWithSuperCascade(toRemove);
+        const removedCount = this.removeTiles(toRemove);
 
         return { removedCount, initialMatchCount: 0, consumedMove: false };
     }
 
-    private removeWithSuperCascade(initial: Tile[]): number {
+    private removeTiles(initial: Tile[]): number {
         const queue: Tile[] = [...initial];
         const removed = new Set<Tile>();
 
@@ -209,11 +209,11 @@ export class BlastGame {
     }
 
     private setState(state: GameState) {
-        this.state = state;
-        this.stateChanged.invoke(this.state);
+        this._state = state;
+        this.stateChanged.invoke(this._state);
     }
 
     private setInputState(state: InputState) {
-        this.inputState = state;
+        this._inputState = state;
     }
 }
