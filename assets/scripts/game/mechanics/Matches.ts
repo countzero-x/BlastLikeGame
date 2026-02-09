@@ -4,10 +4,8 @@ import { SuperTile } from "../views/SuperTile";
 import { Tile } from "../views/Tile";
 
 export class Matches {
-    
-    public hasAvailableMoves(board: Board): boolean {
-        let possibleMoves = 0;
 
+    public hasAvailableMoves(board: Board): boolean {
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
                 const tile = board.getTile(x, y);
@@ -22,7 +20,6 @@ export class Matches {
 
                 const group = this.findConnectedGroup(board, x, y);
                 if (group.length >= 2) {
-                    possibleMoves++;
                     return true;
                 }
             }
@@ -37,38 +34,37 @@ export class Matches {
             return [];
         }
 
-        const visited: boolean[][] = [];
-        for (let i = 0; i < board.width; i++) {
-            visited[i] = new Array(board.height).fill(false);
-        }
+        const visited: boolean[][] = Array.from({ length: board.width },
+            () => new Array(board.height).fill(false));
 
         const group: Tile[] = [];
+        const queue: [number, number][] = [[x, y]];
         const targetColor = startTile.color;
-        this.floodFill(board, x, y, targetColor, visited, group);
+        const directions = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
+        while (queue.length > 0) {
+            const [cx, cy] = queue.shift()!;
+
+            if (cx < 0 || cx >= board.width || cy < 0 || cy >= board.height) {
+                continue;
+            }
+            if (visited[cx][cy]) {
+                continue;
+            }
+
+            const tile = board.getTile(cx, cy);
+            if (!tile || tile.isEmpty || tile.color !== targetColor) {
+                continue;
+            }
+
+            visited[cx][cy] = true;
+            group.push(tile);
+
+            for (const [dx, dy] of directions) {
+                queue.push([cx + dx, cy + dy]);
+            }
+        }
 
         return group.length >= 2 ? group : [];
-    }
-
-    private floodFill(board: Board, x: number, y: number, targetColor: TileColor, visited: boolean[][], group: Tile[]): void {
-        if (x < 0 || x >= board.width || y < 0 || y >= board.height) {
-            return;
-        }
-
-        if (visited[x][y]) {
-            return;
-        }
-
-        const tile = board.getTile(x, y);
-        if (!tile || tile.isEmpty || tile.color !== targetColor) {
-            return;
-        }
-
-        visited[x][y] = true;
-        group.push(tile);
-
-        this.floodFill(board, x + 1, y, targetColor, visited, group);
-        this.floodFill(board, x - 1, y, targetColor, visited, group);
-        this.floodFill(board, x, y + 1, targetColor, visited, group);
-        this.floodFill(board, x, y - 1, targetColor, visited, group);
     }
 }
