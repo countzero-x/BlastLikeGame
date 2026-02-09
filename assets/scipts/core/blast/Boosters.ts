@@ -55,7 +55,6 @@ export class Boosters {
                 break;
             case BoosterType.NONE:
                 game._inputState = InputState.NORMAL;
-                this._selectedType = BoosterType.NONE;
                 this._firstTeleportTile = null;
                 this._secondTeleportTile = null;
         }
@@ -80,6 +79,7 @@ export class Boosters {
             case InputState.BOMB:
                 const tiles = this.applyBombBooster(tile, game._board);
                 game._inputState = InputState.NORMAL;
+                this._selectedType = BoosterType.NONE;
                 this._bombCount--;
                 return tiles;
             case InputState.TELEPORT_PHASE_ONE:
@@ -90,6 +90,7 @@ export class Boosters {
                 this._secondTeleportTile = tile;
                 this.applyTeleportBooster(game);
                 game._inputState = InputState.NORMAL;
+                this._selectedType = BoosterType.NONE;
                 this._teleportCount--;
                 return null;
         }

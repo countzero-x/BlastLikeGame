@@ -152,6 +152,11 @@ export class BlastGame {
                     tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
                 }
             }
+
+            if (tilesRemoved.length > 0) {
+                const scoreGained = this._score.calculateScore(tilesRemoved.length);
+                this._score.addScore(scoreGained);
+            }
         }
 
         this.updateBoard();
