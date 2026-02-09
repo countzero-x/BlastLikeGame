@@ -5,8 +5,8 @@ import { MovesView } from "./views/MovesView";
 import { ScoreView } from "./views/ScoreView";
 import { WinView } from "./views/WinView";
 import { BlastGame } from "./BlastGame";
-import { BoosterType } from "./BoosterType";
-import { GameState } from "./GameState";
+import { BoosterType } from "./enums/BoosterType";
+import { GameState } from "./enums/GameState";
 
 const { ccclass, property } = cc._decorator;
 

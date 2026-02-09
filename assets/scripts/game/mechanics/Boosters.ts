@@ -1,8 +1,8 @@
 import { BlastGame } from "../BlastGame";
 import { Board } from "../Board";
-import { BoosterType } from "../BoosterType";
+import { BoosterType } from "../enums/BoosterType";
 import { GameConfig } from "../GameConfig";
-import { InputState } from "../InputState";
+import { InputState } from "../enums/InputState";
 import { Tile } from "../Tile";
 
 

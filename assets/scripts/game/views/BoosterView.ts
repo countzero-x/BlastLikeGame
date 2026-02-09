@@ -1,5 +1,5 @@
 import { BlastGame } from "../BlastGame";
-import { BoosterType } from "../BoosterType";
+import { BoosterType } from "../enums/BoosterType";
 
 const { ccclass, property } = cc._decorator;
 

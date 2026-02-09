@@ -1,5 +1,5 @@
 import { BlastGame } from "../BlastGame";
-import { GameState } from "../GameState";
+import { GameState } from "../enums/GameState";
 
 const { ccclass, property } = cc._decorator;
 

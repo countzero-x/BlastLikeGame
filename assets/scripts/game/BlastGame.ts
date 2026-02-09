@@ -1,9 +1,9 @@
 import { Board } from "./Board";
 import { Boosters } from "./mechanics/Boosters";
 import { GameConfig } from "./GameConfig";
-import { GameState } from "./GameState";
+import { GameState } from "./enums/GameState";
 import { Gravity } from "./mechanics/Gravity";
-import { InputState } from "./InputState";
+import { InputState } from "./enums/InputState";
 import { Matches } from "./mechanics/Matches";
 import { Moves } from "./mechanics/Moves";
 import { MyEvent } from "../MyEvent";
