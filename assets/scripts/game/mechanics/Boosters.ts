@@ -36,7 +36,7 @@ export class Boosters {
         const booster = this._boosters.get(type);
         this._selectedType = type;
 
-        if (!booster || type === BoosterType.NONE) {
+        if (!booster || type == BoosterType.NONE) {
             this._ctx.setInputState(InputState.NORMAL);
             return;
         }
@@ -45,7 +45,7 @@ export class Boosters {
     }
 
     public canApply(type: BoosterType): boolean {
-        if (type === BoosterType.NONE) return true;
+        if (type == BoosterType.NONE) return true;
         const booster = this._boosters.get(type);
         return booster?.canUse() ?? false;
     }

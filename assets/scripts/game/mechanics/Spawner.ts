@@ -1,8 +1,8 @@
 import { Board } from "./Board";
 import { SuperTileType } from "../enums/SuperTileType";
 import { TileColor } from "../enums/TileColor";
-import { SuperTile } from "../SuperTile";
 import { Tile } from "../Tile";
+import { SuperTile } from "./superTiles/SuperTile";
 
 export class Spawner {
 

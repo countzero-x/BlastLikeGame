@@ -17,11 +17,14 @@ import { Moves } from "./mechanics/Moves";
 import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
-import { SuperTiles } from "./mechanics/SuperTiles";
+import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { BombBooster } from "./mechanics/boosters/BombBooster";
 import { TeleportBooster } from "./mechanics/boosters/TeleportBooster";
 import { TileColor } from "./enums/TileColor";
 import { SuperTileType } from "./enums/SuperTileType";
+import { LineSuperTileLogic } from "./mechanics/superTiles/LineSuperTileLogic";
+import { RadiusBombSuperTileLogic } from "./mechanics/superTiles/RadiusBombSuperTileLogic";
+import { MaxBombSuperTileLogic } from "./mechanics/superTiles/MaxBombSuperTileLogic";
 
 const { ccclass, property } = cc._decorator;
 
@@ -126,6 +129,12 @@ export class Bootstrap extends cc.Component {
         boosters.register(new BombBooster(this.boosterBombCount, this.boosterBombRadius));
         boosters.register(new TeleportBooster(this.boosterTeleportCount));
 
+        const superTiles = new SuperTiles();
+        superTiles.register(new LineSuperTileLogic(true), this.superTileRemovedCountForLine);
+        superTiles.register(new LineSuperTileLogic(false), this.superTileRemovedCountForLine);
+        superTiles.register(new RadiusBombSuperTileLogic(this.superTileBombRadius), this.superTileRemovedCountForLineRadiusBomb);
+        superTiles.register(new MaxBombSuperTileLogic(), this.superTileRemovedCountForMaxBomb);
+
         this._game = new BlastGame(
             new Board(this.boardWidth, this.boardHeight),
             new Score(this.targetScore, this.scorePerTile),
@@ -134,7 +143,7 @@ export class Bootstrap extends cc.Component {
             new Shuffle(this.maxShuffles),
             new Matches(),
             new Gravity(),
-            new SuperTiles(this.superTileRemovedCountForLine, this.superTileRemovedCountForLineRadiusBomb, this.superTileRemovedCountForMaxBomb, this.superTileBombRadius),
+            superTiles,
             boosters
         );
 

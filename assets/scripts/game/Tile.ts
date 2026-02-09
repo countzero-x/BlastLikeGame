@@ -12,7 +12,7 @@ export class Tile {
     }
 
     get isEmpty(): boolean {
-        return this.color === TileColor.EMPTY;
+        return this.color == TileColor.EMPTY;
     }
 
     setPosition(x: number, y: number): void {

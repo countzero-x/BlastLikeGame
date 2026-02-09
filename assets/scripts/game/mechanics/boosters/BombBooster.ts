@@ -52,7 +52,7 @@ export class BombBooster implements IBooster {
                 }
 
                 const tile = board.getTile(selectedTile.x + dx, selectedTile.y + dy);
-                if (tile?.isEmpty === false) {
+                if (tile?.isEmpty == false) {
                     tiles.push(tile);
                 }
             }

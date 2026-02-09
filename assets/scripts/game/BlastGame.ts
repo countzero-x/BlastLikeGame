@@ -11,8 +11,8 @@ import { Moves } from "./mechanics/Moves";
 import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
-import { SuperTiles } from "./mechanics/SuperTiles";
-import { SuperTile } from "./SuperTile";
+import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
+import { SuperTile } from "./mechanics/superTiles/SuperTile";
 import { Tile } from "./Tile";
 
 type TurnOutcome = {
@@ -105,7 +105,7 @@ export class BlastGame {
 
     private processTurn(clicked: Tile) {
         const outcome =
-            this.inputState === InputState.NORMAL
+            this.inputState == InputState.NORMAL
                 ? this.applyNormalClick(clicked)
                 : this.applyBoosterClick(clicked);
 
@@ -157,16 +157,16 @@ export class BlastGame {
         const removed = new Set<Tile>();
 
         while (queue.length > 0) {
-            const t = queue.shift()!;
-            if (!t || removed.has(t)) {
+            const tile = queue.shift()!;
+            if (!tile || removed.has(tile)) {
                 continue
             };
 
-            removed.add(t);
-            this.board.removeTile(t);
+            removed.add(tile);
+            this.board.removeTile(tile);
 
-            if (t instanceof SuperTile) {
-                const extra = this.superTiles.activate(t, this.board);
+            if (tile instanceof SuperTile) {
+                const extra = this.superTiles.activate(tile, this.board);
                 for (const e of extra) {
                     queue.push(e);
                 }
@@ -178,7 +178,7 @@ export class BlastGame {
 
     private trySpawnSuperTile(x: number, y: number, initialRemovedCount: number) {
         const superType = this.superTiles.GetSuperTileType(initialRemovedCount);
-        if (superType === SuperTileType.NONE) {
+        if (superType == SuperTileType.NONE) {
             return;
         }
 
