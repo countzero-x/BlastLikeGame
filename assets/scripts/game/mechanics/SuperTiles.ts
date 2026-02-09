@@ -1,8 +1,8 @@
-import { Board } from "../Board";
+import { Board } from "./Board";
 import { GameConfig } from "../GameConfig";
-import { SuperTile } from "../SuperTile";
 import { SuperTileType } from "../enums/SuperTileType";
-import { Tile } from "../Tile";
+import { SuperTile } from "../views/SuperTile";
+import { Tile } from "../views/Tile";
 
 export class SuperTiles {
 

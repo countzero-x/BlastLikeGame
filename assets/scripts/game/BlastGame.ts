@@ -1,4 +1,4 @@
-import { Board } from "./Board";
+import { Board } from "./mechanics/Board";
 import { Boosters } from "./mechanics/Boosters";
 import { GameConfig } from "./GameConfig";
 import { GameState } from "./enums/GameState";
@@ -10,10 +10,10 @@ import { GameEvent } from "../GameEvent";
 import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
-import { SuperTile } from "./SuperTile";
 import { SuperTiles } from "./mechanics/SuperTiles";
 import { SuperTileType } from "./enums/SuperTileType";
-import { Tile } from "./Tile";
+import { SuperTile } from "./views/SuperTile";
+import { Tile } from "./views/Tile";
 
 export class BlastGame {
     // todo не паблик

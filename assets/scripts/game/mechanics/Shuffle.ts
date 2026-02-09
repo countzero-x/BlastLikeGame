@@ -1,6 +1,5 @@
-import { Board } from "../Board";
-import { Tile } from "../Tile";
-
+import { Board } from "./Board";
+import { Tile } from "../views/Tile";
 
 export class Shuffle {
     public readonly maxAttempts: number;

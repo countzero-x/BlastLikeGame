@@ -1,5 +1,4 @@
-import { Tile } from "./Tile";
-import { TileColor } from "./enums/TileColor";
+import { Tile } from "../views/Tile";
 
 export class Board {
     private tiles: Map<number, Tile>;

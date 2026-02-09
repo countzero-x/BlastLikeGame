@@ -1,7 +1,6 @@
-import { Board } from "../Board";
-import { Tile } from "../Tile";
+import { Board } from "./Board";
 import { TileColor } from "../enums/TileColor";
-
+import { Tile } from "../views/Tile";
 
 export class Gravity {
     public applyGravity(board: Board): void {

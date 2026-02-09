@@ -1,10 +1,9 @@
 import { BlastGame } from "../BlastGame";
-import { Board } from "../Board";
+import { Board } from "./Board";
 import { BoosterType } from "../enums/BoosterType";
 import { GameConfig } from "../GameConfig";
 import { InputState } from "../enums/InputState";
-import { Tile } from "../Tile";
-
+import { Tile } from "../views/Tile";
 
 export class Boosters {
     private _bombCount: number;

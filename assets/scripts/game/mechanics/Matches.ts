@@ -1,7 +1,7 @@
-import { Board } from "../Board";
-import { SuperTile } from "../SuperTile";
-import { Tile } from "../Tile";
+import { Board } from "./Board";
 import { TileColor } from "../enums/TileColor";
+import { SuperTile } from "../views/SuperTile";
+import { Tile } from "../views/Tile";
 
 export class Matches {
     

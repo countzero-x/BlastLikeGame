@@ -13,7 +13,6 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class Bootstrap extends cc.Component {
-
     @property(BoosterView)
     private teleportView: BoosterView
 
