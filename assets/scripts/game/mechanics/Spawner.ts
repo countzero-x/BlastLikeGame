@@ -6,6 +6,12 @@ import { SuperTile } from "./superTiles/SuperTile";
 
 export class Spawner {
 
+    private avaliableColors = Array<TileColor>();
+
+    public register(color: TileColor) {
+        this.avaliableColors.push(color);
+    }
+
     public fillWithRegularTiles(board: Board) {
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
@@ -18,8 +24,7 @@ export class Spawner {
     }
 
     public createRandomRegularTile(x: number, y: number): Tile {
-        // todo: более гибко
-        const color = Math.floor(Math.random() * 5);
+        const color = Math.floor(Math.random() * this.avaliableColors.length);
         return new Tile(x, y, color);
     }
 

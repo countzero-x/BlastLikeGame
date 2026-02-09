@@ -135,11 +135,18 @@ export class Bootstrap extends cc.Component {
         superTiles.register(new RadiusBombSuperTileLogic(this.superTileBombRadius), this.superTileRemovedCountForLineRadiusBomb);
         superTiles.register(new MaxBombSuperTileLogic(), this.superTileRemovedCountForMaxBomb);
 
+        const spawner = new Spawner();
+        spawner.register(TileColor.RED);
+        spawner.register(TileColor.BLUE);
+        spawner.register(TileColor.GREEN);
+        spawner.register(TileColor.YELLOW);
+        spawner.register(TileColor.PURPLE);
+
         this._game = new BlastGame(
             new Board(this.boardWidth, this.boardHeight),
             new Score(this.targetScore, this.scorePerTile),
             new Moves(this.maxMoves),
-            new Spawner(),
+            spawner,
             new Shuffle(this.maxShuffles),
             new Matches(),
             new Gravity(),
