@@ -75,7 +75,7 @@ export class BlastGame {
     public start() {
         this._inputState = InputState.NORMAL;
         this.shuffleBoard();
-        if (this._state !== GameState.LOSE) this.setState(GameState.IDLE);
+        if (this._state !== GameState.LOSE) this.state = GameState.IDLE;
     }
 
     public finish() {
@@ -110,7 +110,7 @@ export class BlastGame {
                 : this.applyBoosterClick(clicked);
 
         this.shuffleBoard();
-        this.setState(GameState.REMOVING_TILES);
+        this.state = GameState.REMOVING_TILES;
 
         if (outcome.removedCount > 0) {
             this.score.addScore(this.score.calculateScore(outcome.removedCount));
@@ -118,16 +118,16 @@ export class BlastGame {
         }
 
         if (this.score.hasReachedTarget()) {
-            this.setState(GameState.WIN);
+            this.state = GameState.WIN;
             return;
         }
 
         if (!this.moves.hasMovesLeft()) {
-            this.setState(GameState.LOSE);
+            this.state = GameState.LOSE;
             return;
         }
 
-        this.setState(GameState.IDLE);
+        this.state = GameState.IDLE;
     }
 
     private applyNormalClick(clicked: Tile): TurnOutcome {
@@ -190,25 +190,25 @@ export class BlastGame {
         this.shuffle.reset();
 
         this.gravity.applyGravity(this.board);
-        this.setState(GameState.APPLYING_GRAVITY);
+        this.state = GameState.APPLYING_GRAVITY;
 
         this.spawner.fillWithRegularTiles(this.board);
-        this.setState(GameState.SPAWNING_TILES);
+        this.state = GameState.SPAWNING_TILES;
 
         for (let attempt = 0; attempt < this.shuffle.attempts; attempt++) {
             if (this.matches.hasAvailableMatches(this.board)) {
                 return;
             };
             this.shuffle.shuffle(this.board);
-            this.setState(GameState.SHUFFLING);
+            this.state = GameState.SHUFFLING;
         }
 
         if (!this.matches.hasAvailableMatches(this.board)) {
-            this.setState(GameState.LOSE);
+            this.state = GameState.LOSE;
         }
     }
 
-    private setState(state: GameState) {
+    private set state(state: GameState) {
         this._state = state;
         this.stateChanged.invoke(this._state);
     }
