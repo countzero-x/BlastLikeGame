@@ -1,34 +1,45 @@
 import { Board } from "./Board";
-import { TileColor } from "../enums/TileColor";
 import { SuperTile } from "../views/SuperTile";
 import { Tile } from "../views/Tile";
 
 export class Matches {
+    public hasAvailableMatches(board: Board): boolean {
+        if (this.hasSuperTile(board)) {
+            return true;
+        }
 
-    public hasAvailableMoves(board: Board): boolean {
+        const visited: Set<number> = new Set();
+
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
-                const tile = board.getTile(x, y);
+                const index = y * board.width + x;
 
+                if (visited.has(index)) {
+                    continue;
+                }
+
+                const tile = board.getTile(x, y);
                 if (!tile || tile.isEmpty) {
                     continue;
                 }
 
-                if (tile instanceof SuperTile) {
-                    return true;
-                }
+                const group = this.getAvaliableMatch(board, x, y);
 
-                const group = this.findConnectedGroup(board, x, y);
                 if (group.length >= 2) {
                     return true;
                 }
+
+                group.forEach(t => {
+                    const tileIndex = t.y * board.width + t.x;
+                    visited.add(tileIndex);
+                });
             }
         }
 
         return false;
     }
 
-    public findConnectedGroup(board: Board, x: number, y: number): Tile[] {
+    public getAvaliableMatch(board: Board, x: number, y: number): Tile[] {
         const startTile = board.getTile(x, y);
         if (!startTile || startTile.isEmpty) {
             return [];
@@ -66,5 +77,17 @@ export class Matches {
         }
 
         return group.length >= 2 ? group : [];
+    }
+
+    private hasSuperTile(board: Board): boolean {
+        for (let x = 0; x < board.width; x++) {
+            for (let y = 0; y < board.height; y++) {
+                const tile = board.getTile(x, y);
+                if (tile instanceof SuperTile) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -76,7 +76,7 @@ export class BlastGame {
         this.setState(GameState.SPAWNING_TILES);
 
         for (let attempt = 0; attempt < this.shuffle.attempts; attempt++) {
-            if (!this.matches.hasAvailableMoves(this.board)) {
+            if (!this.matches.hasAvailableMatches(this.board)) {
                 this.shuffle.shuffle(this.board);
                 this.setState(GameState.SHUFFLING);
             }
@@ -85,7 +85,7 @@ export class BlastGame {
             }
         }
 
-        if (!this.matches.hasAvailableMoves(this.board)) {
+        if (!this.matches.hasAvailableMatches(this.board)) {
             this.setState(GameState.LOSE);
         }
     }
@@ -98,7 +98,7 @@ export class BlastGame {
         const tilesRemoved = new Array<Tile>();
 
         if (this.inputState == InputState.NORMAL) {
-            tilesRemoved.push(...this.matches.findConnectedGroup(this.board, tile.x, tile.y));
+            tilesRemoved.push(...this.matches.getAvaliableMatch(this.board, tile.x, tile.y));
             const initialRemovedCount = tilesRemoved.length;
 
             if (tile instanceof SuperTile) {
