@@ -22,6 +22,6 @@ export class LoseView extends cc.Component {
     }
 
     public updateView() {
-        this.button.node.active = this._game._state == GameState.LOSE;
+        this.button.node.active = this._game.state == GameState.LOSE;
     }
 }

@@ -92,18 +92,18 @@ export class Bootstrap extends cc.Component {
     protected onLoad(): void {
         this._game = new BlastGame();
 
-        this._game._board = new Board(this.boardWidth, this.boardHeight);
-        this._game._score = new Score(this.targetScore, this.scorePerTile);
-        this._game._moves = new Moves(this.maxMoves);
-        this._game._shuffle = new Shuffle(this.maxShuffles);
-        this._game._spawner = new Spawner();
-        this._game._matches = new Matches();
-        this._game._gravity = new Gravity();
-        this._game._superTiles = new SuperTiles(this.superTileRemovedCountForLine, this.superTileRemovedCountForLineRadiusBomb, this.superTileRemovedCountForMaxBomb, this.superTileBombRadius);
-        this._game._boosters = new Boosters(this.boosterBombCount, this.boosterTeleportCount, this.boosterBombRadius);
+        this._game.board = new Board(this.boardWidth, this.boardHeight);
+        this._game.score = new Score(this.targetScore, this.scorePerTile);
+        this._game.moves = new Moves(this.maxMoves);
+        this._game.shuffle = new Shuffle(this.maxShuffles);
+        this._game.spawner = new Spawner();
+        this._game.matches = new Matches();
+        this._game.gravity = new Gravity();
+        this._game.superTiles = new SuperTiles(this.superTileRemovedCountForLine, this.superTileRemovedCountForLineRadiusBomb, this.superTileRemovedCountForMaxBomb, this.superTileBombRadius);
+        this._game.boosters = new Boosters(this.boosterBombCount, this.boosterTeleportCount, this.boosterBombRadius);
 
-        this.scoreView.init(this._game._score);
-        this.movesView.init(this._game._moves);
+        this.scoreView.init(this._game.score);
+        this.movesView.init(this._game.moves);
 
         this.winView.init(this._game);
         this.loseView.init(this._game);

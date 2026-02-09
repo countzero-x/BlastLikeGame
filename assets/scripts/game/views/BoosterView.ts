@@ -20,16 +20,16 @@ export class BoosterView extends cc.Component {
         this._game = game;
 
         this.button.node.on('click', () => {
-            if (game._boosters.selectedType == type) {
-                game._boosters.apply(game, BoosterType.NONE);
-            } else if (game._boosters.canApply(type)) {
-                game._boosters.apply(game, type);
+            if (game.boosters.selectedType == type) {
+                game.boosters.apply(game, BoosterType.NONE);
+            } else if (game.boosters.canApply(type)) {
+                game.boosters.apply(game, type);
             }
         });
     }
 
     public updateView() {
-        this.label.string = this._type == BoosterType.BOMB ? this._game._boosters.bombCount.toString() : this._game._boosters.teleportCount.toString();
-        this.button.interactable = this._game._boosters.canApply(BoosterType.BOMB);
+        this.label.string = this._type == BoosterType.BOMB ? this._game.boosters.bombCount.toString() : this._game.boosters.teleportCount.toString();
+        this.button.interactable = this._game.boosters.canApply(BoosterType.BOMB);
     }
 }

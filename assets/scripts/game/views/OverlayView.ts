@@ -16,6 +16,6 @@ export class OverlayView extends cc.Component {
     }
 
     public updateView() {
-        this.ovelay.active = this._game._state == GameState.WIN || this._game._state == GameState.LOSE;
+        this.ovelay.active = this._game.state == GameState.WIN || this._game.state == GameState.LOSE;
     }
 }

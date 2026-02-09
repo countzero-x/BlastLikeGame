@@ -21,6 +21,6 @@ export class WinView extends cc.Component {
     }
 
     public updateView() {
-        this.button.node.active = this._game._state == GameState.WIN;
+        this.button.node.active = this._game.state == GameState.WIN;
     }
 }

@@ -16,26 +16,26 @@ import { Tile } from "./views/Tile";
 
 export class BlastGame {
     // todo не паблик
-    public _inputState: InputState;
-    public _state: GameState;
+    public inputState: InputState;
+    public state: GameState;
 
-    public _board: Board;
-    public _score: Score;
-    public _moves: Moves;
-    public _spawner: Spawner;
-    public _shuffle: Shuffle;
-    public _matches: Matches;
-    public _gravity: Gravity;
-    public _superTiles: SuperTiles;
-    public _boosters: Boosters;
+    public board: Board;
+    public score: Score;
+    public moves: Moves;
+    public spawner: Spawner;
+    public shuffle: Shuffle;
+    public matches: Matches;
+    public gravity: Gravity;
+    public superTiles: SuperTiles;
+    public boosters: Boosters;
 
     public stateChanged: GameEvent<GameState> = new GameEvent<GameState>();
 
     public start() {
-        this._inputState = InputState.NORMAL;
+        this.inputState = InputState.NORMAL;
         this.updateBoard();
 
-        if (this._state != GameState.LOSE) {
+        if (this.state != GameState.LOSE) {
             this.setState(GameState.IDLE);
         }
     }
@@ -45,20 +45,20 @@ export class BlastGame {
     }
 
     private reset() {
-        this._inputState = InputState.NORMAL;
+        this.inputState = InputState.NORMAL;
 
-        this._score.reset();
-        this._moves.reset();
-        this._boosters.reset();
-        this._board.clear();
+        this.score.reset();
+        this.moves.reset();
+        this.boosters.reset();
+        this.board.clear();
     }
 
     public makeMove(x: number, y: number) {
-        if (this._state != GameState.IDLE) {
+        if (this.state != GameState.IDLE) {
             return;
         }
 
-        const tile = this._board.getTile(x, y);
+        const tile = this.board.getTile(x, y);
         if (!tile || tile.isEmpty) {
             return;
         }
@@ -67,17 +67,17 @@ export class BlastGame {
     }
 
     private updateBoard() {
-        this._shuffle.reset();
+        this.shuffle.reset();
 
-        this._gravity.applyGravity(this._board);
+        this.gravity.applyGravity(this.board);
         this.setState(GameState.APPLYING_GRAVITY);
 
-        this._spawner.fillWithRegularTiles(this._board);
+        this.spawner.fillWithRegularTiles(this.board);
         this.setState(GameState.SPAWNING_TILES);
 
-        for (let attempt = 0; attempt < this._shuffle.attempts; attempt++) {
-            if (!this._matches.hasAvailableMoves(this._board)) {
-                this._shuffle.shuffle(this._board);
+        for (let attempt = 0; attempt < this.shuffle.attempts; attempt++) {
+            if (!this.matches.hasAvailableMoves(this.board)) {
+                this.shuffle.shuffle(this.board);
                 this.setState(GameState.SHUFFLING);
             }
             else {
@@ -85,7 +85,7 @@ export class BlastGame {
             }
         }
 
-        if (!this._matches.hasAvailableMoves(this._board)) {
+        if (!this.matches.hasAvailableMoves(this.board)) {
             this.setState(GameState.LOSE);
         }
     }
@@ -97,8 +97,8 @@ export class BlastGame {
 
         const tilesRemoved = new Array<Tile>();
 
-        if (this._inputState == InputState.NORMAL) {
-            tilesRemoved.push(...this._matches.findConnectedGroup(this._board, tile.x, tile.y));
+        if (this.inputState == InputState.NORMAL) {
+            tilesRemoved.push(...this.matches.findConnectedGroup(this.board, tile.x, tile.y));
             const initialRemovedCount = tilesRemoved.length;
 
             if (tile instanceof SuperTile) {
@@ -108,53 +108,53 @@ export class BlastGame {
             for (let i = 0; i < tilesRemoved.length; i++) {
                 const tileRemoved = tilesRemoved[i];
 
-                this._board.removeTile(tileRemoved);
+                this.board.removeTile(tileRemoved);
 
                 if (tileRemoved instanceof SuperTile) {
-                    tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
+                    tilesRemoved.push(...this.superTiles.activate(tileRemoved, this.board));
                 }
             }
 
-            const superTileType = this._superTiles.GetSuperTileType(initialRemovedCount);
+            const superTileType = this.superTiles.GetSuperTileType(initialRemovedCount);
             if (superTileType != SuperTileType.NONE) {
-                const superTile = this._spawner.createSuperTile(tile.x, tile.y, superTileType);
-                this._board.setTile(tile.x, tile.y, superTile);
+                const superTile = this.spawner.createSuperTile(tile.x, tile.y, superTileType);
+                this.board.setTile(tile.x, tile.y, superTile);
             }
 
             if (tilesRemoved.length > 0) {
-                const scoreGained = this._score.calculateScore(tilesRemoved.length);
-                this._score.addScore(scoreGained);
-                this._moves.decrementMove();
+                const scoreGained = this.score.calculateScore(tilesRemoved.length);
+                this.score.addScore(scoreGained);
+                this.moves.decrementMove();
             }
         }
         else {
-            tilesRemoved.push(...this._boosters.proccessClick(this, tile));
+            tilesRemoved.push(...this.boosters.proccessClick(this, tile));
 
             for (let i = 0; i < tilesRemoved.length; i++) {
                 const tileRemoved = tilesRemoved[i];
 
-                this._board.removeTile(tileRemoved);
+                this.board.removeTile(tileRemoved);
 
                 if (tileRemoved instanceof SuperTile) {
-                    tilesRemoved.push(...this._superTiles.activate(tileRemoved, this._board));
+                    tilesRemoved.push(...this.superTiles.activate(tileRemoved, this.board));
                 }
             }
 
             if (tilesRemoved.length > 0) {
-                const scoreGained = this._score.calculateScore(tilesRemoved.length);
-                this._score.addScore(scoreGained);
+                const scoreGained = this.score.calculateScore(tilesRemoved.length);
+                this.score.addScore(scoreGained);
             }
         }
 
         this.updateBoard();
         this.setState(GameState.REMOVING_TILES);
 
-        if (this._score.hasReachedTarget()) {
+        if (this.score.hasReachedTarget()) {
             this.setState(GameState.WIN);
             return;
         }
 
-        if (!this._moves.hasMovesLeft()) {
+        if (!this.moves.hasMovesLeft()) {
             this.setState(GameState.LOSE);
             return;
         }
@@ -163,7 +163,7 @@ export class BlastGame {
     }
 
     private setState(state: GameState) {
-        this._state = state;
-        this.stateChanged.invoke(this._state);
+        this.state = state;
+        this.stateChanged.invoke(this.state);
     }
 }
