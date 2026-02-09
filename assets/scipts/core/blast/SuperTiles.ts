@@ -25,7 +25,7 @@ export class SuperTiles {
             case SuperTileType.VERTICAL:
                 return this.activateColumn(superTile, board);
             case SuperTileType.RADIUS_BOMB:
-                return this.activateRadius(superTile, board, GameConfig.RADIUS_BOMB);
+                return this.activateRadius(superTile, board, GameConfig.SUPERTILE_RADIUS_BOMB);
             case SuperTileType.MAX_BOMB:
                 return this.activateFullBoard(superTile, board);
             default:

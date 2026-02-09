@@ -1,6 +1,7 @@
 import { GameState } from "../fsm/GameState";
 import { BlastGame } from "./BlastGame";
 import { Board } from "./Board";
+import { BoosterType } from "./BoosterType";
 import { GameConfig } from "./GameConfig";
 import { Tile } from "./Tile";
 import { TileColor } from "./TileColor";
@@ -32,6 +33,18 @@ export class GameTest extends cc.Component {
     @property(cc.Button)
     loseButton: cc.Button
 
+    @property(cc.Label)
+    teleportLabel: cc.Label
+
+    @property(cc.Label)
+    bombLabel: cc.Label
+
+    @property(cc.Button)
+    teleportButton: cc.Button;
+
+    @property(cc.Button)
+    bombButton: cc.Button;
+
     game: BlastGame
 
     tileViews: TileView[][] = [];
@@ -51,6 +64,23 @@ export class GameTest extends cc.Component {
             this.game.finish();
             this.game.start();
         })
+
+        this.bombButton.node.on('click', () => {
+            if (this.game._boosters.selectedType == BoosterType.BOMB) {
+                this.game._boosters.apply(this.game, BoosterType.NONE);
+            } else if (this.game._boosters.canApply(BoosterType.BOMB)) {
+                this.game._boosters.apply(this.game, BoosterType.BOMB);
+            }
+        });
+
+        this.teleportButton.node.on('click', () => {
+            if (this.game._boosters.selectedType == BoosterType.TELEPORT) {
+                this.game._boosters.apply(this.game, BoosterType.NONE);
+            }
+            else if (this.game._boosters.canApply(BoosterType.TELEPORT)) {
+                this.game._boosters.apply(this.game, BoosterType.TELEPORT);
+            }
+        });
 
         this.clickNode.on(cc.Node.EventType.TOUCH_END, this.onTouch, this);
     }
@@ -80,11 +110,21 @@ export class GameTest extends cc.Component {
 
     private handleStateChanged(state: GameState) {
         console.log(state);
-        this.updateView();
+
+        this.updateBoardView();
+
         this.scoreLabel.string = `${this.game._score.currentScore.toString()} / ${this.game._score.targetScore}`;
         this.movesLabel.string = this.game._moves.currentMoves.toString();
+
         this.winButton.node.active = state == GameState.WIN;
         this.loseButton.node.active = state == GameState.LOSE;
+
+        this.bombButton.interactable = this.game._boosters.canApply(BoosterType.BOMB);
+        this.bombLabel.string = this.game._boosters.bombCount.toString();
+
+        this.teleportButton.interactable = this.game._boosters.canApply(BoosterType.TELEPORT);
+        this.teleportLabel.string = this.game._boosters.teleportCount.toString();
+
         GameTest.printBoard(this.game._board);
     }
 
@@ -118,7 +158,7 @@ export class GameTest extends cc.Component {
         return null;
     }
 
-    private updateView() {
+    private updateBoardView() {
         for (let x = 0; x < this.game._board.width; x++) {
             for (let y = 0; y < this.game._board.height; y++) {
                 if (this.tileViews.length - 1 < x) {
@@ -181,7 +221,7 @@ export class GameTest extends cc.Component {
                     row += '[ ] ';
                 } else {
                     // Сокращенное название цвета
-                    const colorChar = this.getColorChar(tile.color);
+                    const colorChar = tile.color;
                     row += `[${colorChar}] `;
                 }
             }
@@ -196,17 +236,5 @@ export class GameTest extends cc.Component {
         }
         console.log(footer);
         console.log('==================\n');
-    }
-
-    private static getColorChar(color: TileColor): string {
-        switch (color) {
-            case TileColor.RED: return 'R';
-            case TileColor.BLUE: return 'B';
-            case TileColor.GREEN: return 'G';
-            case TileColor.YELLOW: return 'Y';
-            case TileColor.PURPLE: return 'P';
-            case TileColor.EMPTY: return ' ';
-            default: return '?';
-        }
     }
 }

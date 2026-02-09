@@ -1,7 +1,9 @@
 import { GameState } from "../fsm/GameState";
 import { Board } from "./Board";
+import { Boosters } from "./Boosters";
 import { GameConfig } from "./GameConfig";
 import { Gravity } from "./Gravity";
+import { InputState } from "./InputState";
 import { Matches } from "./Matches";
 import { Moves } from "./Moves";
 import { MyEvent } from "./MyEvent";
@@ -15,7 +17,9 @@ import { Tile } from "./Tile";
 
 export class BlastGame {
     // todo не паблик
+    public _inputState: InputState;
     public _state: GameState;
+
     public _board: Board;
     public _score: Score;
     public _moves: Moves;
@@ -23,12 +27,13 @@ export class BlastGame {
     public _shuffle: Shuffle;
     public _matches: Matches;
     public _gravity: Gravity;
-    public _superTiles: SuperTiles
+    public _superTiles: SuperTiles;
+    public _boosters: Boosters;
 
     public stateChanged: MyEvent<GameState> = new MyEvent<GameState>();
 
     public init() {
-        this._board = new Board(GameConfig.DEFAULT_BOARD_WIDTH, GameConfig.DEFAULT_BOARD_HEIGHT);
+        this._board = new Board(GameConfig.BOARD_WIDTH, GameConfig.BOARD_HEIGHT);
         this._score = new Score(GameConfig.TARGET_SCORE, GameConfig.SCORE_FOR_TILE);
         this._moves = new Moves(GameConfig.MAX_MOVES);
         this._shuffle = new Shuffle(GameConfig.MAX_SHUFFLES);
@@ -36,6 +41,7 @@ export class BlastGame {
         this._matches = new Matches();
         this._gravity = new Gravity();
         this._superTiles = new SuperTiles();
+        this._boosters = new Boosters(GameConfig.BOOSTER_BOMB_COUNT, GameConfig.BOOSTER_TELEPORT_COUNT);
     }
 
     public start() {
@@ -47,8 +53,11 @@ export class BlastGame {
     }
 
     private reset() {
+        this._inputState = InputState.NORMAL;
+
         this._score.reset();
         this._moves.reset();
+        this._boosters.reset();
         this._board.clear();
     }
 
@@ -99,13 +108,25 @@ export class BlastGame {
         }
 
         const tilesRemoved = new Array<Tile>();
-        tilesRemoved.push(tile);
 
-        tilesRemoved.push(...this._matches.findConnectedGroup(this._board, tile.x, tile.y));
-        const initialRemovedCount = tilesRemoved.length;
+        if (this._inputState == InputState.NORMAL) {
+            tilesRemoved.push(...this._matches.findConnectedGroup(this._board, tile.x, tile.y));
+            const initialRemovedCount = tilesRemoved.length;
 
-        if (tilesRemoved.length == 0) {
-            return;
+            const superTileType = this._superTiles.GetSuperTileType(initialRemovedCount);
+            if (superTileType != SuperTileType.NONE) {
+                const superTile = this._spawner.createSuperTile(tile.x, tile.y, superTileType);
+                this._board.setTile(tile.x, tile.y, superTile);
+            }
+
+            if (tilesRemoved.length > 0) {
+                const scoreGained = this._score.calculateScore(tilesRemoved.length);
+                this._score.addScore(scoreGained);
+                this._moves.decrementMove();
+            }
+        }
+        else {
+            tilesRemoved.push(...this._boosters.proccessClick(this, tile));
         }
 
         for (let i = 0; i < tilesRemoved.length; i++) {
@@ -118,22 +139,8 @@ export class BlastGame {
             }
         }
 
-        // todo что сначала удалить или активировтаь
-        // tileRemoved.activate(this._board);
-        this.setState(GameState.REMOVING_TILES);
-
-        const superTileType = this._superTiles.GetSuperTileType(initialRemovedCount);
-        if (superTileType != SuperTileType.NONE) {
-            const superTile = this._spawner.createSuperTile(tile.x, tile.y, superTileType);
-            this._board.setTile(tile.x, tile.y, superTile);
-        }
-
         this.updateBoard();
-
-        const scoreGained = this._score.calculateScore(tilesRemoved.length);
-        this._score.addScore(scoreGained);
-
-        this._moves.decrementMove();
+        this.setState(GameState.REMOVING_TILES);
 
         if (this._score.hasReachedTarget()) {
             this.setState(GameState.WIN);

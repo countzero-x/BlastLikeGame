@@ -31,6 +31,17 @@ export class Board {
         }
     }
 
+    moveTile(left: Tile, right: Tile) {
+        const fX = left.x;
+        const fY = left.y;
+
+        const sX = right.x;
+        const sY = right.y;
+
+        this.setTile(fX, fY, right);
+        this.setTile(sX, sY, left);
+    }
+
     public removeTile(tile: Tile): void {
         this.removeTileByPosition(tile.x, tile.y);
     }
