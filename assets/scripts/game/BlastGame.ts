@@ -32,8 +32,9 @@ export class BlastGame {
     public readonly superTiles: SuperTiles;
     public readonly boosters: Boosters;
 
-    public readonly stateChanged = new GameEvent<GameState>();
-    public readonly moveCompleted = new GameEvent<TurnOutcome>();
+    public readonly onStateChanged = new GameEvent<GameState>();
+    public readonly onInputStateChanged = new GameEvent<InputState>();
+    public readonly onMoveCompleted = new GameEvent<TurnOutcome>();
 
     constructor(
         input: Input,
@@ -63,6 +64,8 @@ export class BlastGame {
         this.boosters.setContext({
             board: this.board,
             setInputState: this.setInputState.bind(this),
+            getInputState: this.getInputState.bind(this),
+            inputStateChanged: this.onInputStateChanged
         });
     }
 
@@ -70,22 +73,24 @@ export class BlastGame {
         return this._lastTurnOutcome;
     }
 
-    public get state() {
+    public get state(): GameState {
         return this._state;
     }
 
-    public get inputState() {
+    public getInputState(): InputState {
         return this._inputState;
     }
 
     public start() {
-        this.input.tileClicked.subscribe(this.makeMove, this);
+        this.input.onTileClicked.subscribe(this.makeMove, this);
 
-        this._inputState = InputState.NORMAL;
+        this.setInputState(InputState.NORMAL);
         const initialUpdate = this.updateBoard();
 
         this._lastTurnOutcome = {
             state: GameState.IDLE,
+            inputState: InputState.NORMAL,
+            selectedTile: null,
             movements: [],
             removedTiles: [],
             initialMatchCount: 0,
@@ -95,7 +100,7 @@ export class BlastGame {
             shuffleRequired: false
         };
 
-        this.moveCompleted.invoke(this.lastTurnOutcome);
+        this.onMoveCompleted.invoke(this.lastTurnOutcome);
 
         if (this._state !== GameState.LOSE) {
             this.setState(GameState.IDLE);
@@ -103,7 +108,7 @@ export class BlastGame {
     }
 
     public finish() {
-        this.input.tileClicked.unsubscribe(this.makeMove, this);
+        this.input.onTileClicked.unsubscribe(this.makeMove, this);
         this.reset();
     }
 
@@ -121,7 +126,7 @@ export class BlastGame {
     }
 
     private reset() {
-        this._inputState = InputState.NORMAL;
+        this.setInputState(InputState.NORMAL);
         this._lastTurnOutcome = null;
         this.score.reset();
         this.moves.reset();
@@ -131,7 +136,7 @@ export class BlastGame {
 
     private processTurn(clicked: Tile): void {
         const outcome =
-            this._inputState == InputState.NORMAL
+            this.getInputState() == InputState.NORMAL
                 ? this.applyNormalClick(clicked)
                 : this.applyBoosterClick(clicked);
 
@@ -155,6 +160,8 @@ export class BlastGame {
 
         const turnOutcome: TurnOutcome = {
             state: resultState,
+            inputState: this.getInputState(),
+            selectedTile: clicked,
             movements: boardOutcome.movements || [],
             removedTiles: outcome.removedTiles || [],
             initialMatchCount: outcome.initialMatchCount || 0,
@@ -165,7 +172,7 @@ export class BlastGame {
         };
         this._lastTurnOutcome = turnOutcome;
 
-        this.moveCompleted.invoke(this._lastTurnOutcome);
+        this.onMoveCompleted.invoke(this._lastTurnOutcome);
     }
 
     private applyNormalClick(clicked: Tile): Partial<TurnOutcome> {
@@ -262,16 +269,19 @@ export class BlastGame {
 
     private setState(state: GameState) {
         this._state = state;
-        this.stateChanged.invoke(this.state);
+        this.onStateChanged.invoke(this.state);
     }
 
     private setInputState(state: InputState) {
         this._inputState = state;
+        this.onInputStateChanged.invoke(this.getInputState());
     }
 
     private getEmptyTurnOutcome(): TurnOutcome {
         return {
             state: GameState.IDLE,
+            inputState: InputState.NORMAL,
+            selectedTile: null,
             movements: [],
             removedTiles: [],
             initialMatchCount: 0,

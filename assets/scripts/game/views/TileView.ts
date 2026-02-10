@@ -18,4 +18,23 @@ export default class TileView extends cc.Component {
     public getPosition(): { x: number; y: number } {
         return this.node.position;
     }
+
+    public animateShake(): void {
+        this.node.stopActionByTag(999);
+
+        const originalPos = this.node.position.clone();
+        const shakeDistance = 10;
+        const shakeSpeed = 0.05;
+
+        const shakeAction = cc.sequence(
+            cc.moveBy(shakeSpeed, -shakeDistance, 0),
+            cc.moveBy(shakeSpeed, shakeDistance * 2, 0),
+            cc.moveBy(shakeSpeed, -shakeDistance * 2, 0),
+            cc.moveBy(shakeSpeed, shakeDistance, 0),
+            cc.moveTo(0, originalPos.x, originalPos.y),
+        );
+
+        shakeAction.setTag(999);
+        this.node.runAction(shakeAction);
+    }
 }

@@ -6,7 +6,7 @@ export class Score {
 
     private _currentScore: number;
 
-    public scoreChanged: GameEvent<number> = new GameEvent<number>();
+    public onScoreChanged: GameEvent<number> = new GameEvent<number>();
 
     constructor(targetScore: number, scorePerTile: number) {
         this._currentScore = 0;
@@ -36,6 +36,6 @@ export class Score {
 
     private set currentScore(value: number) {
         this._currentScore = value;
-        this.scoreChanged?.invoke(this.currentScore);
+        this.onScoreChanged?.invoke(this.currentScore);
     }
 }

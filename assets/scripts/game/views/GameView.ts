@@ -1,6 +1,8 @@
 import { BlastGame } from "../BlastGame";
 import { TurnOutcome } from "../TurnOutcome";
+import { BoosterType } from "../enums/BoosterType";
 import { GameState } from "../enums/GameState";
+import { InputState } from "../enums/InputState";
 import { BoardView } from "./BoardView";
 import { BoosterView } from "./BoosterView";
 import { LoseView } from "./LoseView";
@@ -19,6 +21,8 @@ export class GameView {
     private _movesView: MovesView;
     private _scoreView: ScoreView;
     private _overlayView: OverlayView;
+
+    private _boosterViewsMap = new Map<BoosterType, BoosterView>();
 
     constructor(game: BlastGame,
         boardView: BoardView,
@@ -40,8 +44,12 @@ export class GameView {
     }
 
     public init() {
-        this._game.moveCompleted.subscribe(this.updateView, this);
+        this._game.onMoveCompleted.subscribe(this.updateView, this);
         this.updateView(this._game.lastTurnOutcome);
+
+        for (var item of this._boosterViews) {
+            this._boosterViewsMap.set(item.type, item);
+        }
     }
 
     private async updateView(context: TurnOutcome) {
@@ -57,6 +65,13 @@ export class GameView {
         await this._boardView.animateSuperTileCreation(context.superTile);
         await this._boardView.animateGravity(context.movements);
         await this._boardView.animateNewTiles(context.newTiles);
+
+        if (context.removedTiles.length == 0
+            && context.selectedTile != null
+            && context.inputState == InputState.NORMAL) {
+            const view = this._boardView.getTileView(context.selectedTile.x, context.selectedTile.y);
+            view.animateShake();
+        }
 
         if (context.shuffleRequired) {
             await this._boardView.animateShuffle();

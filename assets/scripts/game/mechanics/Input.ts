@@ -3,10 +3,10 @@ import { GameEvent } from "../../GameEvent";
 export class Input {
     private _enabled: boolean = true;
 
-    public readonly tileClicked = new GameEvent<{ x: number, y: number }>();
+    public readonly onTileClicked = new GameEvent<{ x: number, y: number }>();
 
     public invokeTileClick(pos: { x: number, y: number }) {
-        this.tileClicked.invoke(pos);
+        this.onTileClicked.invoke(pos);
     }
 
     public get isEnabled(): boolean {

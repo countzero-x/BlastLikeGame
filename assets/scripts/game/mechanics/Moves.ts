@@ -5,7 +5,7 @@ export class Moves {
 
     private _currentMoves: number;
 
-    public movesChanged: GameEvent<number> = new GameEvent<number>();
+    public onMovesChanged: GameEvent<number> = new GameEvent<number>();
 
     constructor(maxMoves: number) {
         this._currentMoves = maxMoves;
@@ -32,6 +32,6 @@ export class Moves {
 
     private set currentMoves(value: number) {
         this._currentMoves = value;
-        this.movesChanged?.invoke(this.currentMoves);
+        this.onMovesChanged?.invoke(this.currentMoves);
     }
 }
