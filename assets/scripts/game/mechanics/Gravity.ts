@@ -1,10 +1,18 @@
-import { Board } from "./Board";
 import { TileColor } from "../enums/TileColor";
 import { Tile } from "../Tile";
+import { Board } from "./Board";
+
+export interface TileMove {
+    x: number;
+    fromY: number;
+    toY: number;
+    tile: Tile;
+}
 
 export class Gravity {
+    public applyGravity(board: Board): Array<TileMove> {
+        const moveHistory = [];
 
-    public applyGravity(board: Board): void {
         for (let x = 0; x < board.width; x++) {
             const tiles: Tile[] = [];
 
@@ -18,13 +26,27 @@ export class Gravity {
 
             for (let i = 0; i < tiles.length; i++) {
                 const tile = tiles[i];
-                tile.y = i;
-                board.setTile(x, i, tile);
+                const oldY = tile.y;
+                const newY = i;
+
+                if (oldY !== newY) {
+                    moveHistory.push({
+                        x: x,
+                        fromY: oldY,
+                        toY: newY,
+                        tile: tile
+                    });
+                }
+
+                tile.y = newY;
+                board.setTile(x, newY, tile);
             }
 
             for (let y = tiles.length; y < board.height; y++) {
                 board.setTile(x, y, new Tile(x, y, TileColor.EMPTY));
             }
         }
+
+        return moveHistory;
     }
 }

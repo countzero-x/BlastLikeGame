@@ -1,5 +1,4 @@
 import { BlastGame } from "../BlastGame";
-import { GameState } from "../enums/GameState";
 
 const { ccclass, property } = cc._decorator;
 
@@ -8,6 +7,9 @@ export class WinView extends cc.Component {
 
     @property(cc.Button)
     private button: cc.Button
+
+    @property(cc.Node)
+    private panelWin: cc.Node;
 
     private _game: BlastGame
 
@@ -20,7 +22,30 @@ export class WinView extends cc.Component {
         })
     }
 
-    public updateView() {
-        this.button.node.active = this._game.state == GameState.WIN;
+    public async show() {
+        this.panelWin.scale = 0;
+        this.panelWin.active = true;
+        this.panelWin.runAction(
+            cc.spawn(
+                cc.scaleTo(0.3, 1),
+                cc.fadeIn(0.3)
+            )
+        );
+    }
+
+    public async hide() {
+        this.panelWin.stopAllActions();
+        this.panelWin.runAction(
+            cc.sequence(
+                cc.spawn(
+                    cc.scaleTo(0.3, 0),
+                    cc.fadeOut(0.3)
+                ),
+                cc.callFunc(() => {
+                    this.panelWin.active = false;
+                    this.panelWin.opacity = 255;
+                })
+            )
+        );
     }
 }

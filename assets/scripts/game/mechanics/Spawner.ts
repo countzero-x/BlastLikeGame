@@ -12,15 +12,20 @@ export class Spawner {
         this.avaliableColors.push(color);
     }
 
-    public fillWithRegularTiles(board: Board) {
+    public fillWithRegularTiles(board: Board): Array<Tile> {
+        const tilesUpdated = new Array<Tile>();
+
         for (let x = 0; x < board.width; x++) {
             for (let y = 0; y < board.height; y++) {
                 if (board.getTile(x, y) == null || board.getTile(x, y).isEmpty) {
                     const tile = this.createRandomRegularTile(x, y);
                     board.setTile(x, y, tile);
+                    tilesUpdated.push(tile);
                 }
             }
         }
+
+        return tilesUpdated;
     }
 
     public createRandomRegularTile(x: number, y: number): Tile {

@@ -26,6 +26,7 @@ import { LineSuperTileLogic } from "./mechanics/superTiles/LineSuperTileLogic";
 import { RadiusBombSuperTileLogic } from "./mechanics/superTiles/RadiusBombSuperTileLogic";
 import { MaxBombSuperTileLogic } from "./mechanics/superTiles/MaxBombSuperTileLogic";
 import { Input } from "./mechanics/Input";
+import { GameView } from "./views/GameView";
 
 const { ccclass, property } = cc._decorator;
 
@@ -162,8 +163,6 @@ export class Bootstrap extends cc.Component {
         this.winView.init(game);
         this.loseView.init(game);
 
-        this.overlayView.init(game);
-
         this.bombView.init(game.boosters, BoosterType.BOMB);
         this.teleportView.init(game.boosters, BoosterType.TELEPORT);
 
@@ -183,22 +182,9 @@ export class Bootstrap extends cc.Component {
 
         this.boardView.init(game.board, game.input, tileViewPool, this.tileSize, this.tileSpacing);
 
-        game.stateChanged.subscribe(this.handleStateChanged, this);
+        const gameView = new GameView(game, this.boardView, new Array<BoosterView>(this.bombView, this.teleportView), this.loseView, this.winView, this.movesView, this.scoreView, this.overlayView);
+        gameView.init();
+
         game.start();
-    }
-
-    private handleStateChanged(state: GameState) {
-        this.overlayView.updateView();
-
-        this.boardView.updateView();
-
-        this.scoreView.updateView();
-        this.movesView.updateView();
-
-        this.winView.updateView();
-        this.loseView.updateView();
-
-        this.teleportView.updateView();
-        this.bombView.updateView();
     }
 }

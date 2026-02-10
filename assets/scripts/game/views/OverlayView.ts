@@ -1,6 +1,3 @@
-import { BlastGame } from "../BlastGame";
-import { GameState } from "../enums/GameState";
-
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -9,13 +6,36 @@ export class OverlayView extends cc.Component {
     @property(cc.Node)
     private ovelay: cc.Node;
 
-    private _game: BlastGame;
+    private _currentOpacity: number
 
-    public init(game: BlastGame) {
-        this._game = game;
+    protected onEnable(): void {
+        this._currentOpacity = this.ovelay.opacity;
     }
 
-    public updateView() {
-        this.ovelay.active = this._game.state == GameState.WIN || this._game.state == GameState.LOSE;
+    public async show(animated: boolean) {
+        if (animated) {
+            this.ovelay.opacity = 0;
+            this.ovelay.active = true;
+            this.ovelay.runAction(
+                cc.fadeTo(0.3, this._currentOpacity)
+            );
+        } else {
+            this.ovelay.opacity = this._currentOpacity;
+        }
+    }
+
+    public async hide(animated: boolean) {
+        if (animated) {
+            this.ovelay.runAction(
+                cc.sequence(
+                    cc.fadeOut(0.3),
+                    cc.callFunc(() => {
+                        this.ovelay.active = false;
+                    })
+                )
+            );
+        } else {
+            this.ovelay.active = false;
+        }
     }
 }

@@ -4,27 +4,22 @@ import { InputState } from "./enums/InputState";
 import { SuperTileType } from "./enums/SuperTileType";
 import { Board } from "./mechanics/Board";
 import { Boosters } from "./mechanics/Boosters";
-import { BoosterContext } from "./mechanics/boosters/IBooster";
 import { Gravity } from "./mechanics/Gravity";
+import { Input } from "./mechanics/Input";
 import { Matches } from "./mechanics/Matches";
 import { Moves } from "./mechanics/Moves";
 import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
-import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { SuperTile } from "./mechanics/superTiles/SuperTile";
+import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { Tile } from "./Tile";
-import { Input } from "./mechanics/Input";
-
-type TurnOutcome = {
-    removedCount: number;
-    initialMatchCount: number;
-    consumedMove: boolean;
-};
+import { TurnOutcome } from "./TurnOutcome";
 
 export class BlastGame {
     private _inputState: InputState = InputState.NORMAL;
     private _state: GameState = GameState.IDLE;
+    private _lastTurnOutcome: TurnOutcome | null = null;
 
     public readonly input: Input;
     public readonly board: Board;
@@ -38,6 +33,7 @@ export class BlastGame {
     public readonly boosters: Boosters;
 
     public readonly stateChanged = new GameEvent<GameState>();
+    public readonly moveCompleted = new GameEvent<TurnOutcome>();
 
     constructor(
         input: Input,
@@ -62,11 +58,16 @@ export class BlastGame {
         this.superTiles = superTiles;
         this.boosters = boosters;
 
+        this._lastTurnOutcome = this.getEmptyTurnOutcome();
 
         this.boosters.setContext({
             board: this.board,
             setInputState: this.setInputState.bind(this),
         });
+    }
+
+    public get lastTurnOutcome(): TurnOutcome {
+        return this._lastTurnOutcome;
     }
 
     public get state() {
@@ -81,16 +82,28 @@ export class BlastGame {
         this.input.tileClicked.subscribe(this.makeMove, this);
 
         this._inputState = InputState.NORMAL;
-        this.updateBoard();
+        const initialUpdate = this.updateBoard();
+
+        this._lastTurnOutcome = {
+            state: GameState.IDLE,
+            movements: [],
+            removedTiles: [],
+            initialMatchCount: 0,
+            consumedMove: false,
+            superTile: null,
+            newTiles: initialUpdate.newTiles || [],
+            shuffleRequired: false
+        };
+
+        this.moveCompleted.invoke(this.lastTurnOutcome);
 
         if (this._state !== GameState.LOSE) {
-            this.state = GameState.IDLE;
+            this.setState(GameState.IDLE);
         }
     }
 
     public finish() {
         this.input.tileClicked.unsubscribe(this.makeMove, this);
-
         this.reset();
     }
 
@@ -109,40 +122,53 @@ export class BlastGame {
 
     private reset() {
         this._inputState = InputState.NORMAL;
+        this._lastTurnOutcome = null;
         this.score.reset();
         this.moves.reset();
         this.boosters.reset();
         this.board.clear();
     }
 
-    private processTurn(clicked: Tile) {
+    private processTurn(clicked: Tile): void {
         const outcome =
             this._inputState == InputState.NORMAL
                 ? this.applyNormalClick(clicked)
                 : this.applyBoosterClick(clicked);
 
-        this.updateBoard();
-        this.state = GameState.REMOVING_TILES;
+        const boardOutcome = this.updateBoard();
+        this.setState(GameState.REMOVING_TILES);
 
-        if (outcome.removedCount > 0) {
-            this.score.addScore(this.score.calculateScore(outcome.removedCount));
+        if (outcome.removedTiles && outcome.removedTiles.length > 0) {
+            this.score.addScore(this.score.calculateScore(outcome.removedTiles.length));
             if (outcome.consumedMove) this.moves.decrementMove();
         }
 
+        let resultState = GameState.IDLE;
+
         if (this.score.hasReachedTarget()) {
-            this.state = GameState.WIN;
-            return;
+            resultState = GameState.WIN;
         }
 
         if (!this.moves.hasMovesLeft()) {
-            this.state = GameState.LOSE;
-            return;
+            resultState = GameState.LOSE;
         }
 
-        this.state = GameState.IDLE;
+        const turnOutcome: TurnOutcome = {
+            state: resultState,
+            movements: boardOutcome.movements || [],
+            removedTiles: outcome.removedTiles || [],
+            initialMatchCount: outcome.initialMatchCount || 0,
+            consumedMove: outcome.consumedMove || false,
+            superTile: outcome.superTile || null,
+            newTiles: boardOutcome.newTiles || [],
+            shuffleRequired: outcome.shuffleRequired
+        };
+        this._lastTurnOutcome = turnOutcome;
+
+        this.moveCompleted.invoke(this._lastTurnOutcome);
     }
 
-    private applyNormalClick(clicked: Tile): TurnOutcome {
+    private applyNormalClick(clicked: Tile): Partial<TurnOutcome> {
         const match = this.matches.getAvaliableMatch(this.board, clicked.x, clicked.y);
         const initialMatchCount = match.length;
 
@@ -150,29 +176,38 @@ export class BlastGame {
             ? [...match, clicked]
             : [...match];
 
-        const removedCount = this.removeTiles(toRemove);
+        const removedTiles = this.removeTiles(toRemove);
 
-        this.trySpawnSuperTile(clicked.x, clicked.y, initialMatchCount);
+        const superTile = this.trySpawnSuperTile(clicked.x, clicked.y, initialMatchCount);
 
-        return { removedCount, initialMatchCount, consumedMove: removedCount > 0 };
+        return {
+            removedTiles: Array.from(removedTiles),
+            initialMatchCount,
+            consumedMove: removedTiles.size > 0,
+            superTile: superTile
+        };
     }
 
-    private applyBoosterClick(clicked: Tile): TurnOutcome {
+    private applyBoosterClick(clicked: Tile): Partial<TurnOutcome> {
         const toRemove = this.boosters.processClick(clicked);
-        const removedCount = this.removeTiles(toRemove);
+        const removedTiles = this.removeTiles(toRemove);
 
-        return { removedCount, initialMatchCount: 0, consumedMove: false };
+        return {
+            removedTiles: Array.from(removedTiles),
+            initialMatchCount: 0,
+            consumedMove: false
+        };
     }
 
-    private removeTiles(initial: Tile[]): number {
+    private removeTiles(initial: Tile[]): Set<Tile> {
         const queue: Tile[] = [...initial];
         const removed = new Set<Tile>();
 
         while (queue.length > 0) {
             const tile = queue.shift()!;
             if (!tile || removed.has(tile)) {
-                continue
-            };
+                continue;
+            }
 
             removed.add(tile);
             this.board.removeTile(tile);
@@ -185,56 +220,65 @@ export class BlastGame {
             }
         }
 
-        return removed.size;
+        return removed;
     }
 
-    private trySpawnSuperTile(x: number, y: number, initialRemovedCount: number) {
+    private trySpawnSuperTile(x: number, y: number, initialRemovedCount: number): SuperTile | null {
         const superType = this.superTiles.GetSuperTileType(initialRemovedCount);
         if (superType == SuperTileType.NONE) {
-            return;
+            return null;
         }
 
         const superTile = this.spawner.createSuperTile(x, y, superType);
         this.board.setTile(x, y, superTile);
+        return superTile;
     }
 
-    private updateBoard() {
+    private updateBoard(): Partial<TurnOutcome> {
         this.shuffle.reset();
 
-        this.gravity.applyGravity(this.board);
-        this.state = GameState.APPLYING_GRAVITY;
+        const movements = this.gravity.applyGravity(this.board);
+        this.setState(GameState.APPLYING_GRAVITY);
 
-        this.spawner.fillWithRegularTiles(this.board);
-        this.state = GameState.SPAWNING_TILES;
+        const newTiles = this.spawner.fillWithRegularTiles(this.board);
+        this.setState(GameState.SPAWNING_TILES);
 
+        let shuffled = false;
         for (let attempt = 0; attempt < this.shuffle.attempts; attempt++) {
             if (this.matches.hasAvailableMatches(this.board)) {
-                return;
-            };
+                return { movements, newTiles: newTiles || [] };
+            }
             this.shuffle.shuffle(this.board);
-            this.state = GameState.SHUFFLING;
+            this.setState(GameState.SHUFFLING);
+            shuffled = true;
         }
 
         if (!this.matches.hasAvailableMatches(this.board)) {
-            this.state = GameState.LOSE;
+            this.setState(GameState.LOSE);
         }
+
+        return { movements, newTiles: newTiles, shuffleRequired: shuffled };
     }
 
-    private set state(state: GameState) {
+    private setState(state: GameState) {
         this._state = state;
-        this.handleStateChanged();
-        this.stateChanged.invoke(this._state);
-    }
-
-    private handleStateChanged() {
-        if (this._state == GameState.IDLE) {
-            this.input.enable();
-        } else {
-            this.input.disable();
-        }
+        this.stateChanged.invoke(this.state);
     }
 
     private setInputState(state: InputState) {
         this._inputState = state;
+    }
+
+    private getEmptyTurnOutcome(): TurnOutcome {
+        return {
+            state: GameState.IDLE,
+            movements: [],
+            removedTiles: [],
+            initialMatchCount: 0,
+            consumedMove: false,
+            superTile: null,
+            shuffleRequired: false,
+            newTiles: []
+        };
     }
 }
