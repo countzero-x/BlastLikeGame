@@ -25,6 +25,7 @@ import { SuperTileType } from "./enums/SuperTileType";
 import { LineSuperTileLogic } from "./mechanics/superTiles/LineSuperTileLogic";
 import { RadiusBombSuperTileLogic } from "./mechanics/superTiles/RadiusBombSuperTileLogic";
 import { MaxBombSuperTileLogic } from "./mechanics/superTiles/MaxBombSuperTileLogic";
+import { Input } from "./mechanics/Input";
 
 const { ccclass, property } = cc._decorator;
 
@@ -121,7 +122,8 @@ export class Bootstrap extends cc.Component {
     @property(cc.SpriteFrame)
     private maxBombTileSprite: cc.SpriteFrame;
 
-    private _game: BlastGame
+    @property(cc.Node)
+    private clickNode: cc.Node;
 
     protected onLoad(): void {
 
@@ -142,7 +144,10 @@ export class Bootstrap extends cc.Component {
         spawner.register(TileColor.YELLOW);
         spawner.register(TileColor.PURPLE);
 
-        this._game = new BlastGame(
+        const input = new Input();
+
+        const game = new BlastGame(
+            input,
             new Board(this.boardWidth, this.boardHeight),
             new Score(this.targetScore, this.scorePerTile),
             new Moves(this.maxMoves),
@@ -154,16 +159,16 @@ export class Bootstrap extends cc.Component {
             boosters
         );
 
-        this.scoreView.init(this._game.score);
-        this.movesView.init(this._game.moves);
+        this.scoreView.init(game.score);
+        this.movesView.init(game.moves);
 
-        this.winView.init(this._game);
-        this.loseView.init(this._game);
+        this.winView.init(game);
+        this.loseView.init(game);
 
-        this.overlayView.init(this._game);
+        this.overlayView.init(game);
 
-        this.bombView.init(this._game.boosters, BoosterType.BOMB);
-        this.teleportView.init(this._game.boosters, BoosterType.TELEPORT);
+        this.bombView.init(game.boosters, BoosterType.BOMB);
+        this.teleportView.init(game.boosters, BoosterType.TELEPORT);
 
         const tileViewPool = new TileViewPool();
         tileViewPool.init(this.tilePrefab, this.boardHeight * this.boardWidth);
@@ -179,10 +184,10 @@ export class Bootstrap extends cc.Component {
         tileViewPool.registerSuperTile(SuperTileType.RADIUS_BOMB, this.radiusBombTileSprite);
         tileViewPool.registerSuperTile(SuperTileType.MAX_BOMB, this.maxBombTileSprite);
 
-        this.boardView.init(this._game, tileViewPool, this.tileSize, this.tileSpacing);
+        this.boardView.init(game, tileViewPool, this.tileSize, this.tileSpacing);
 
-        this._game.stateChanged.subscribe(this.handleStateChanged, this);
-        this._game.start();
+        game.stateChanged.subscribe(this.handleStateChanged, this);
+        game.start();
     }
 
     private handleStateChanged(state: GameState) {

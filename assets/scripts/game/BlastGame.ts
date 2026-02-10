@@ -14,6 +14,7 @@ import { Spawner } from "./mechanics/Spawner";
 import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { SuperTile } from "./mechanics/superTiles/SuperTile";
 import { Tile } from "./Tile";
+import { Input } from "./mechanics/Input";
 
 type TurnOutcome = {
     removedCount: number;
@@ -25,6 +26,7 @@ export class BlastGame {
     private _inputState: InputState = InputState.NORMAL;
     private _state: GameState = GameState.IDLE;
 
+    public readonly input: Input;
     public readonly board: Board;
     public readonly score: Score;
     public readonly moves: Moves;
@@ -38,6 +40,7 @@ export class BlastGame {
     public readonly stateChanged = new GameEvent<GameState>();
 
     constructor(
+        input: Input,
         board: Board,
         score: Score,
         moves: Moves,
@@ -48,6 +51,7 @@ export class BlastGame {
         superTiles: SuperTiles,
         boosters: Boosters,
     ) {
+        this.input = input;
         this.board = board;
         this.score = score;
         this.moves = moves;
@@ -75,7 +79,7 @@ export class BlastGame {
     public start() {
         this._inputState = InputState.NORMAL;
         this.updateBoard();
-        
+
         if (this._state !== GameState.LOSE) {
             this.state = GameState.IDLE;
         }
@@ -86,7 +90,7 @@ export class BlastGame {
     }
 
     public makeMove(x: number, y: number) {
-        if (this._state !== GameState.IDLE) {
+        if (!this.input.isEnabled) {
             return;
         }
 
@@ -213,7 +217,16 @@ export class BlastGame {
 
     private set state(state: GameState) {
         this._state = state;
+        this.handleStateChanged();
         this.stateChanged.invoke(this._state);
+    }
+
+    private handleStateChanged() {
+        if (this._state == GameState.IDLE) {
+            this.input.enable();
+        } else {
+            this.input.disable();
+        }
     }
 
     private setInputState(state: InputState) {
