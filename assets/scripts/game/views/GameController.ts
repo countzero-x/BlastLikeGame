@@ -1,4 +1,3 @@
-import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
 import { GameMediator } from "../mechanics/GameMediator";
 import { TurnEffect } from "../mechanics/TurnEffect";
@@ -9,6 +8,8 @@ import { ShakeEffect } from "../mechanics/effects/ShakeEffect";
 import { ShuffleEffect } from "../mechanics/effects/ShuffleEffect";
 import { SuperTileSpawnEffect } from "../mechanics/effects/SuperTileSpawnEffect";
 import { SwapEffect } from "../mechanics/effects/SwapEffect";
+import { TeleportDeselectEffect } from "../mechanics/effects/TeleportDeselectEffect";
+import { TeleportSelectEffect } from "../mechanics/effects/TeleportSelectEffect";
 import { TileSpawnEffect } from "../mechanics/effects/TileSpawnEffect";
 import { WinEffect } from "../mechanics/effects/WinEffect";
 import { BoardView } from "./BoardView";
@@ -55,6 +56,8 @@ export class GameController {
         this._mediator.onGameStarted.subscribe(this.processEffects, this);
         this._mediator.onTurnFinished.subscribe(this.processEffects, this);
         this._mediator.onGameFinished.subscribe(this.processEffects, this);
+        this._mediator.onBoosterSelected.subscribe(this.processEffects, this);
+        this._mediator.onBoosterDeselected.subscribe(this.processEffects, this);
 
         for (var item of this._boosterViews) {
             this._boosterViewsMap.set(item.type, item);
@@ -96,7 +99,19 @@ export class GameController {
                 view.animateShake();
             }
             else if (effect instanceof SwapEffect) {
+                const viewLeft = this._boardView.getTileView(effect.left.x, effect.left.y);
+                viewLeft.stopShake();
+                const viewRight = this._boardView.getTileView(effect.right.x, effect.right.y);
+                viewRight.stopShake();
                 await this._boardView.animateTileSwap(effect.left, effect.right);
+            }
+            else if (effect instanceof TeleportSelectEffect) {
+                const view = this._boardView.getTileView(effect.selectedTile.x, effect.selectedTile.y);
+                view.startShake();
+            }
+            else if (effect instanceof TeleportDeselectEffect) {
+                const view = this._boardView.getTileView(effect.deselectedTile.x, effect.deselectedTile.y);
+                view.stopShake();
             }
             else if (effect instanceof WinEffect) {
                 await this._boardView.animateHideTiles();
@@ -110,7 +125,6 @@ export class GameController {
                 await this._loseView.show();
                 this._boardView.reset();
             }
-
         }
 
         this._scoreView.updateScore();

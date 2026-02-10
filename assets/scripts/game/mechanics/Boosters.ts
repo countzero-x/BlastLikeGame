@@ -3,15 +3,14 @@ import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
 import { InputState } from "../enums/InputState";
 import { TurnContext } from "../TurnContext";
-import { TurnClickProcessor } from "../TurnProcessor";
+import { BoosterDeselectedProcessor, BoosterSelectedProcessor, TurnClickProcessor } from "../TurnProcessor";
 import { TurnEffect } from "./TurnEffect";
 import { Booster } from "./boosters/Booster";
 
-export class Boosters implements TurnClickProcessor {
-    private _game: BlastGame;
-
+export class Boosters implements TurnClickProcessor, BoosterSelectedProcessor, BoosterDeselectedProcessor {
     private readonly _boosters = new Map<BoosterType, Booster>();
 
+    private _game: BlastGame;
     private _selectedType: BoosterType = BoosterType.NONE;
 
     public readonly onSelectedTypeChanged = new GameEvent<BoosterType>();
@@ -38,6 +37,22 @@ export class Boosters implements TurnClickProcessor {
         return ctx.getInputState() != InputState.NORMAL;
     }
 
+    public onBoosterSelected(): TurnEffect | null {
+        if (this.selectedType == BoosterType.NONE) {
+            return;
+        }
+
+        return this.getBooster(this.selectedType).onBoosterSelected();
+    }
+
+    public onBoosterDeselected(): TurnEffect | null {
+        if (this.selectedType == BoosterType.NONE) {
+            return;
+        }
+
+        return this.getBooster(this.selectedType).onBoosterDeselected();
+    }
+
     public onTileClick(ctx: TurnContext): TurnEffect | null {
         const booster = this._boosters.get(this.selectedType);
         if (!booster) {
@@ -62,12 +77,17 @@ export class Boosters implements TurnClickProcessor {
         }
     }
 
-    public apply(type: BoosterType): void {
+    public apply(type: BoosterType): TurnEffect | null {
+        const current = this.getBooster(this.selectedType);
+        if (current != null) {
+            current.onBoosterDeselected();
+        }
+
         const booster = this._boosters.get(type);
 
         if (!booster || type == BoosterType.NONE) {
             this._game.setInputState(InputState.NORMAL);
-            return;
+            return null;
         }
 
         this._game.setInputState(booster.initialInputState);

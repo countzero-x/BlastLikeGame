@@ -14,7 +14,8 @@ import { Spawner } from "./mechanics/Spawner";
 import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { Tile } from "./Tile";
 import { TurnContext } from "./TurnContext";
-import { PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor, TileDeletedProcessor, TurnClickProcessor } from "./TurnProcessor";
+import { BoosterDeselectedProcessor, BoosterSelectedProcessor, BoosterUsedProcessor, PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor, TileDeletedProcessor, TurnClickProcessor } from "./TurnProcessor";
+import { BoosterType } from "./enums/BoosterType";
 
 export class BlastGame {
     public readonly input: Input;
@@ -33,6 +34,9 @@ export class BlastGame {
     public readonly onTurnFinished = new GameEvent<Array<TurnEffect>>();
     public readonly onGameStarted = new GameEvent<Array<TurnEffect>>();
     public readonly onGameFinished = new GameEvent<Array<TurnEffect>>();
+    public readonly onBoosterTypeChanged = new GameEvent<BoosterType>();
+    public readonly onBoosterSelected = new GameEvent<Array<TurnEffect>>();
+    public readonly onBoosterDeselected = new GameEvent<Array<TurnEffect>>();
 
     private _state: GameState = GameState.GAME;
     private _inputState: InputState = InputState.NORMAL;
@@ -84,6 +88,7 @@ export class BlastGame {
         this._tileRemovedProcessors = tileRemovedProcessors;
 
         this.boosters.init(this);
+        this.boosters.onSelectedTypeChanged.subscribe(x => this.onBoosterTypeChanged.invoke(x), this);
     }
 
     public get lastTurnContext(): TurnContext {
@@ -121,7 +126,21 @@ export class BlastGame {
         this.reset();
     }
 
-    public processTurn(x: number, y: number): Array<TurnEffect> {
+    public selectBooster(type: BoosterType): void {
+        const effects = new Array<TurnEffect>();
+        this.boosters.apply(type);
+        effects.push(this.boosters.onBoosterSelected());
+        this.onBoosterSelected.invoke(effects);
+    }
+
+    public deselectBooster(type: BoosterType): void {
+        const effects = new Array<TurnEffect>();
+        effects.push(this.boosters.onBoosterDeselected());
+        this.boosters.apply(BoosterType.NONE)
+        this.onBoosterDeselected.invoke(effects);
+    }
+
+    public processTurn(x: number, y: number): void {
         if (!this.input.isEnabled) {
             return;
         }

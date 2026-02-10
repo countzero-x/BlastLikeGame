@@ -26,15 +26,15 @@ export interface TurnClickProcessor extends TurnProcessor {
     onTileClick(ctx: TurnContext): TurnEffect | null;
 }
 
-export interface BoosterSelected extends TurnProcessor {
+export interface BoosterSelectedProcessor extends TurnProcessor {
     onBoosterSelected(): TurnEffect | null;
 }
 
-export interface BoosterUsed extends TurnProcessor {
-    onBoosterDeselected(): TurnEffect | null;
+export interface BoosterUsedProcessor extends TurnProcessor {
+    onBoosterUsed(): TurnEffect | null;
 }
 
-export interface BoosterDeselected extends TurnProcessor {
+export interface BoosterDeselectedProcessor extends TurnProcessor {
     onBoosterDeselected(): TurnEffect | null;
 }
 

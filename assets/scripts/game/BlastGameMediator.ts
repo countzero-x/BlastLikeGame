@@ -14,8 +14,10 @@ export class BlastGameMediator implements GameMediator {
     public readonly onTurnFinished = new GameEvent<TurnEffect[]>();
     public readonly onGameStarted = new GameEvent<TurnEffect[]>();
     public readonly onGameFinished = new GameEvent<TurnEffect[]>();
-    public readonly onSelectedTypeChanged = new GameEvent<BoosterType>();
+    public readonly onBoosterTypeChanged = new GameEvent<BoosterType>();
     public readonly onBoosterCountChanged = new GameEvent<{ type: BoosterType; count: number; }>();
+    public readonly onBoosterSelected = new GameEvent<TurnEffect[]>();
+    public readonly onBoosterDeselected = new GameEvent<TurnEffect[]>();
 
     private _game: BlastGame;
 
@@ -27,8 +29,11 @@ export class BlastGameMediator implements GameMediator {
         this._game.onTurnFinished.subscribe(x => this.onTurnFinished.invoke(x), this);
         this._game.onGameStarted.subscribe(x => this.onGameStarted.invoke(x), this);
         this._game.onGameFinished.subscribe(x => this.onGameFinished.invoke(x), this);
-        
-        this._game.boosters.onSelectedTypeChanged.subscribe(x => {
+        this._game.onBoosterTypeChanged.subscribe(x => this.onBoosterTypeChanged.invoke(x), this);
+        this._game.onBoosterSelected.subscribe(x => this.onBoosterSelected.invoke(x), this);
+        this._game.onBoosterDeselected.subscribe(x => this.onBoosterDeselected.invoke(x), this);
+
+        this._game.onBoosterTypeChanged.subscribe(x => {
             const booster = this._game.boosters.getBooster(x);
             this.onBoosterCountChanged.invoke({
                 type: x,
@@ -37,10 +42,11 @@ export class BlastGameMediator implements GameMediator {
         }, this);
 
         // todo: не ожидаю что появятся новые бустеры после создания медиатора
-        for (var booster of this._game.boosters.boosters) {
+        for (const booster of this._game.boosters.boosters) {
             booster.onCountChanged.subscribe((c) => this.onBoosterCountChanged.invoke({ type: booster.type, count: c }), this);
         }
     }
+
 
     startGame(): void {
         this._game.start();
@@ -91,11 +97,11 @@ export class BlastGameMediator implements GameMediator {
     }
 
     selectBooster(type: BoosterType): void {
-        this._game.boosters.apply(type);
+        this._game.selectBooster(type);
     }
 
     deselectBooster(type: BoosterType): void {
-        this._game.boosters.apply(BoosterType.NONE);
+        this._game.deselectBooster(BoosterType.NONE);
     }
 
     getBoosterCount(type: BoosterType): number {

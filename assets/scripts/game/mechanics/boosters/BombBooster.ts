@@ -27,6 +27,14 @@ export class BombBooster implements Booster {
         return this.canUse();
     }
 
+    public onBoosterSelected(): TurnEffect | null {
+        return null;
+    }
+
+    public onBoosterDeselected(): TurnEffect | null {
+        return null;
+    }
+
     public onTileClick(ctx: TurnContext): TurnEffect {
         if (!this.canUse()) {
             return [];

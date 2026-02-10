@@ -6,6 +6,8 @@ import { TurnContext } from "../../TurnContext";
 import { TurnEffect } from "../TurnEffect";
 import { SwapEffect } from "../effects/SwapEffect";
 import { Booster } from "./Booster";
+import { TeleportDeselectEffect } from "../effects/TeleportDeselectEffect";
+import { TeleportSelectEffect } from "../effects/TeleportSelectEffect";
 
 export class TeleportBooster implements Booster {
     public readonly type = BoosterType.TELEPORT;
@@ -26,6 +28,22 @@ export class TeleportBooster implements Booster {
         return this.canUse();
     }
 
+    public onBoosterSelected(): TurnEffect | null {
+        return null;
+    }
+
+    public onBoosterDeselected(): TurnEffect | null {
+        if (this._firstTile != null) {
+            const effect: TeleportDeselectEffect = new TeleportDeselectEffect();
+            effect.deselectedTile = this._firstTile
+            this._firstTile = null;
+            return effect;
+        }
+        else {
+            return null;
+        }
+    }
+
     public onTileClick(ctx: TurnContext): TurnEffect {
         if (!this.canUse()) {
             return []
@@ -34,7 +52,19 @@ export class TeleportBooster implements Booster {
         if (!this._firstTile) {
             this._firstTile = ctx.selectedTile;
             ctx.setInputState(InputState.TELEPORT_PHASE_TWO);
-            return null;
+
+            const effect: TeleportSelectEffect = new TeleportSelectEffect();
+            effect.selectedTile = this._firstTile
+            return effect;
+        }
+
+        if (this._firstTile == ctx.selectedTile) {
+            const effect: TeleportDeselectEffect = new TeleportDeselectEffect();
+            effect.deselectedTile = this._firstTile
+
+            this._firstTile = null;
+
+            return effect;
         }
 
         ctx.board.swapTiles(this._firstTile, ctx.selectedTile);

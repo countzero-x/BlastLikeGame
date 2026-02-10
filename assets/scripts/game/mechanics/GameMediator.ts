@@ -12,7 +12,10 @@ export interface GameMediator {
     readonly onTurnFinished: GameEvent<Array<TurnEffect>>;
     readonly onGameStarted: GameEvent<Array<TurnEffect>>;
     readonly onGameFinished: GameEvent<Array<TurnEffect>>;
-    readonly onSelectedTypeChanged: GameEvent<BoosterType>;
+
+    readonly onBoosterSelected: GameEvent<Array<TurnEffect>>;
+    readonly onBoosterDeselected: GameEvent<Array<TurnEffect>>;
+    readonly onBoosterTypeChanged: GameEvent<BoosterType>;
     readonly onBoosterCountChanged: GameEvent<{ type: BoosterType, count: number }>;
 
     startGame(): void;

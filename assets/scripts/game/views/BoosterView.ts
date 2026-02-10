@@ -28,19 +28,25 @@ export class BoosterView extends cc.Component {
         this._type = type;
 
         this._mediator.onBoosterCountChanged.subscribe(this.handleCountChanged, this);
-        this._mediator.onSelectedTypeChanged.subscribe(this.handleTypeChanged, this)
+        this._mediator.onBoosterTypeChanged.subscribe(this.handleTypeChanged, this)
         this.handleCountChanged({ type: this._type, count: this._mediator.getBoosterCount(this.type) });
 
-        this.button.node.on('click', () => {
-            if (this._mediator.getSelectedBoosterType() == type) {
-                this._mediator.selectBooster(BoosterType.NONE);
-            } else if (this._mediator.canSelectBooster(type)) {
-                this._mediator.selectBooster(type);
-            }
-        });
+        this.button.node.on('click', this.handleClicked.bind(this));
+    }
+
+    private handleClicked() {
+        if (this._mediator.getSelectedBoosterType() == this.type) {
+            this._mediator.deselectBooster(this.type);
+        } else if (this._mediator.canSelectBooster(this.type)) {
+            this._mediator.selectBooster(this.type);
+        }
     }
 
     private handleCountChanged(data: { type: BoosterType, count: number }) {
+        if (data.type != this.type) {
+            return;
+        }
+
         this.label.string = data.count.toString();
         this.button.interactable = this._mediator.canSelectBooster(this.type);
     }
