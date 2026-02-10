@@ -2,42 +2,42 @@ import { BlastGame } from "./BlastGame";
 import { TurnContext } from "./TurnContext";
 import { TurnEffect } from "./mechanics/TurnEffect";
 
-export interface TurnProcessor {
+export type TurnProcessor = {
     canProcess(ctx: TurnContext): boolean;
 }
 
-export interface PreGameProcessor {
+export type PreGameProcessor = {
     onPreGame(game: BlastGame): TurnEffect | null;
 }
 
-export interface PostGameProcessor {
+export type PostGameProcessor = {
     onPostGame(game: BlastGame): TurnEffect | null;
 }
 
-export interface PreTurnProcessor extends TurnProcessor {
+export type PreTurnProcessor = TurnProcessor & {
     onPreTurn(ctx: TurnContext): TurnEffect | null;
 }
 
-export interface PostTurnProcessor extends TurnProcessor {
+export type PostTurnProcessor = TurnProcessor & {
     onPostTurn(ctx: TurnContext): TurnEffect | null;
 }
 
-export interface TurnClickProcessor extends TurnProcessor {
+export type TurnClickProcessor = TurnProcessor & {
     onTileClick(ctx: TurnContext): TurnEffect | null;
 }
 
-export interface BoosterSelectedProcessor extends TurnProcessor {
+export type BoosterSelectedProcessor = TurnProcessor & {
     onBoosterSelected(): TurnEffect | null;
 }
 
-export interface BoosterUsedProcessor extends TurnProcessor {
+export type BoosterUsedProcessor = TurnProcessor & {
     onBoosterUsed(): TurnEffect | null;
 }
 
-export interface BoosterDeselectedProcessor extends TurnProcessor {
+export type BoosterDeselectedProcessor = TurnProcessor & {
     onBoosterDeselected(): TurnEffect | null;
 }
 
-export interface TileDeletedProcessor extends TurnProcessor {
+export type TileDeletedProcessor = TurnProcessor & {
     onTileRemoved(ctx: TurnContext): TurnEffect | null;
 }
