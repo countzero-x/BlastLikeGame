@@ -2,6 +2,7 @@ import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
 import { Boosters } from "../mechanics/Boosters";
 import { Booster } from "../mechanics/boosters/Booster";
+import { GameMediator } from "../mechanics/GameMediator";
 
 const { ccclass, property } = cc._decorator;
 
@@ -14,8 +15,7 @@ export class BoosterView extends cc.Component {
     @property(cc.Button)
     private button: cc.Button;
 
-    private _booster: Booster;
-    private _boosters: Boosters
+    private _mediator: GameMediator
 
     private _type: BoosterType;
 
@@ -23,27 +23,26 @@ export class BoosterView extends cc.Component {
         return this._type;
     }
 
-    public init(boosters: Boosters, type: BoosterType) {
-        this._boosters = boosters;
+    public init(mediator: GameMediator, type: BoosterType) {
+        this._mediator = mediator;
         this._type = type;
 
-        this._booster = this._boosters.getBooster(type);
-        this._booster.onCountChanged.subscribe(this.handleCountChanged, this);
-        boosters.onSelectedTypeChanged.subscribe(this.handleTypeChanged, this)
-        this.handleCountChanged(this._booster.getCount());
+        this._mediator.onBoosterCountChanged.subscribe(this.handleCountChanged, this);
+        this._mediator.onSelectedTypeChanged.subscribe(this.handleTypeChanged, this)
+        this.handleCountChanged({ type: this._type, count: this._mediator.getBoosterCount(this.type) });
 
         this.button.node.on('click', () => {
-            if (this._boosters.selectedType == type) {
-                this._boosters.apply(BoosterType.NONE);
-            } else if (this._boosters.canApply(type)) {
-                this._boosters.apply(type);
+            if (this._mediator.getSelectedBoosterType() == type) {
+                this._mediator.selectBooster(BoosterType.NONE);
+            } else if (this._mediator.canSelectBooster(type)) {
+                this._mediator.selectBooster(type);
             }
         });
     }
 
-    private handleCountChanged(value: number) {
-        this.label.string = this._booster.getCount().toString();
-        this.button.interactable = this._boosters.canApply(this.type);
+    private handleCountChanged(data: { type: BoosterType, count: number }) {
+        this.label.string = data.count.toString();
+        this.button.interactable = this._mediator.canSelectBooster(this.type);
     }
 
     private handleTypeChanged(type: BoosterType) {

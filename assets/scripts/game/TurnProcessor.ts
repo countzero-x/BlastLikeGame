@@ -7,11 +7,11 @@ export interface TurnProcessor {
 }
 
 export interface PreGameProcessor {
-    onPreGame(game: BlastGame)
+    onPreGame(game: BlastGame): TurnEffect | null;
 }
 
 export interface PostGameProcessor {
-    onPostGame(game: BlastGame)
+    onPostGame(game: BlastGame): TurnEffect | null;
 }
 
 export interface PreTurnProcessor extends TurnProcessor {
@@ -24,6 +24,18 @@ export interface PostTurnProcessor extends TurnProcessor {
 
 export interface TurnClickProcessor extends TurnProcessor {
     onTileClick(ctx: TurnContext): TurnEffect | null;
+}
+
+export interface BoosterSelected extends TurnProcessor {
+    onBoosterSelected(): TurnEffect | null;
+}
+
+export interface BoosterUsed extends TurnProcessor {
+    onBoosterDeselected(): TurnEffect | null;
+}
+
+export interface BoosterDeselected extends TurnProcessor {
+    onBoosterDeselected(): TurnEffect | null;
 }
 
 export interface TileDeletedProcessor extends TurnProcessor {

@@ -1,6 +1,5 @@
-import { Board } from "../mechanics/Board";
+import { GameMediator } from "../mechanics/GameMediator";
 import { TileMove } from "../mechanics/Gravity";
-import { Input } from "../mechanics/Input";
 import { SuperTile } from "../mechanics/superTiles/SuperTile";
 import { Tile } from "../Tile";
 import TileView from "./TileView";
@@ -17,23 +16,21 @@ export class BoardView extends cc.Component {
     @property(cc.Node)
     private clickNode: cc.Node
 
-    private _board: Board;
-    private _input: Input;
+    private _mediator: GameMediator;
     private _tileSize: number;
     private _tileSpacing: number;
     private _tileViews: TileView[][] = [];
     private _tileViewPool: TileViewPool;
 
-    public init(board: Board, input: Input, tileViewPool: TileViewPool, tileSize: number, tileSpacing: number) {
+    public init(mediator: GameMediator, tileViewPool: TileViewPool, tileSize: number, tileSpacing: number) {
         this._tileViewPool = tileViewPool;
-        this._board = board;
-        this._input = input;
+        this._mediator = mediator;
         this._tileSize = tileSize;
         this._tileSpacing = tileSpacing;
 
-        for (let x = 0; x < this._board.width; x++) {
+        for (let x = 0; x < this._mediator.getBoardWidth(); x++) {
             this._tileViews[x] = [];
-            for (let y = 0; y < this._board.height; y++) {
+            for (let y = 0; y < this._mediator.getBoardHeight(); y++) {
                 this._tileViews[x][y] = null;
             }
         }
@@ -48,16 +45,16 @@ export class BoardView extends cc.Component {
     }
 
     public getTileView(x: number, y: number): TileView | null {
-        if (x >= 0 && x < this._board.width && y >= 0 && y < this._board.height) {
+        if (x >= 0 && x < this._mediator.getBoardWidth() && y >= 0 && y < this._mediator.getBoardHeight()) {
             return this._tileViews[x][y];
         }
         return null;
     }
 
     public reset() {
-        for (let x = 0; x < this._board.width; x++) {
+        for (let x = 0; x < this._mediator.getBoardWidth(); x++) {
             this._tileViews[x] = [];
-            for (let y = 0; y < this._board.height; y++) {
+            for (let y = 0; y < this._mediator.getBoardHeight(); y++) {
                 if (this._tileViews[x][y] != null) {
                     this._tileViewPool.put(this._tileViews[x][y]);
                 }
@@ -70,26 +67,15 @@ export class BoardView extends cc.Component {
         const touchPos = event.getLocation();
         const gridPos = this.worldToGridPos(touchPos);
 
-        cc.log(`Клик в мировых координатах: (${touchPos.x}, ${touchPos.y})`);
-        cc.log(`Конвертировано в сетку: (${gridPos.x}, ${gridPos.y})`);
-
-        const tile = this._board.getTile(gridPos.x, gridPos.y);
-        if (tile) {
-            cc.log(`Тайл найден: цвет=${tile.color}, isEmpty=${tile.isEmpty}`);
-        } else {
-            cc.log(`Тайл не найден (вне границ)`);
-        }
-
         if (this.isValidPosition(gridPos.x, gridPos.y)) {
-            this._input.invokeTileClick({ x: gridPos.x, y: gridPos.y });
+            this._mediator.click(gridPos.x, gridPos.y);
         }
     }
 
     private isValidPosition(x: number, y: number): boolean {
-        return x >= 0 && x < this._board.width && y >= 0 && y < this._board.height;
+        return x >= 0 && x < this._mediator.getBoardWidth() && y >= 0 && y < this._mediator.getBoardHeight();
     }
 
-    // ИСПРАВЛЕНО: явный возврат null и правильная типизация
     private createTileView(tile: Tile): TileView | null {
         if (tile == null) {
             return null;
@@ -103,8 +89,8 @@ export class BoardView extends cc.Component {
     }
 
     private gridToWorldPos(x: number, y: number): cc.Vec3 {
-        const startX = -(this._board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
-        const startY = -(this._board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startX = -(this._mediator.getBoardWidth() * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startY = -(this._mediator.getBoardHeight() * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
 
         return cc.v3(
             startX + x * (this._tileSize + this._tileSpacing),
@@ -113,12 +99,11 @@ export class BoardView extends cc.Component {
         );
     }
 
-    // ИСПРАВЛЕНО: убрал | null из возвращаемого типа, т.к. всегда возвращаем объект
     private worldToGridPos(worldPos: cc.Vec2): { x: number, y: number } {
         const localPos = this.tiles.convertToNodeSpaceAR(worldPos);
 
-        const startX = -(this._board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
-        const startY = -(this._board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startX = -(this._mediator.getBoardWidth() * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startY = -(this._mediator.getBoardHeight() * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
 
         const x = Math.floor((localPos.x - startX + this._tileSize / 2) / (this._tileSize + this._tileSpacing));
         const y = Math.floor((localPos.y - startY + this._tileSize / 2) / (this._tileSize + this._tileSpacing));
@@ -217,7 +202,7 @@ export class BoardView extends cc.Component {
                 if (tileView) {
                     this._tileViews[move.x][move.fromY] = null;
 
-                    const updatedTile = this._board.getTile(move.x, move.toY);
+                    const updatedTile = this._mediator.getTile(move.x, move.toY);
                     if (updatedTile) {
                         this._tileViews[move.x][move.toY] = tileView;
                         cc.log(`  Обновлен внутренний tile TileView: (${updatedTile.x}, ${updatedTile.y})`);
@@ -258,11 +243,11 @@ export class BoardView extends cc.Component {
             let completed = 0;
             const duration = 0.4;
 
-            const centerX = Math.floor(this._board.width / 2);
-            const centerY = Math.floor(this._board.height / 2);
+            const centerX = Math.floor(this._mediator.getBoardWidth() / 2);
+            const centerY = Math.floor(this._mediator.getBoardHeight() / 2);
 
-            for (let x = 0; x < this._board.width; x++) {
-                for (let y = 0; y < this._board.height; y++) {
+            for (let x = 0; x < this._mediator.getBoardWidth(); x++) {
+                for (let y = 0; y < this._mediator.getBoardHeight(); y++) {
                     const tileView = this.getTileView(x, y);
                     if (tileView) {
                         // Расстояние от центра
@@ -318,7 +303,7 @@ export class BoardView extends cc.Component {
                 const finalPos = this.gridToWorldPos(tile.x, tile.y);
                 const startPos = cc.v3(
                     finalPos.x,
-                    finalPos.y + (this._board.height * (this._tileSize + this._tileSpacing))
+                    finalPos.y + (this._mediator.getBoardHeight() * (this._tileSize + this._tileSpacing))
                 );
 
                 tileView.node.position = startPos;
@@ -426,10 +411,10 @@ export class BoardView extends cc.Component {
                                 completed++;
                                 // ИСПРАВЛЕНО: сравниваем с общим количеством тайлов
                                 if (completed === totalTiles) {
-                                    for (let x = 0; x < this._board.width; x++) {
-                                        for (let y = 0; y < this._board.height; y++) {
+                                    for (let x = 0; x < this._mediator.getBoardWidth(); x++) {
+                                        for (let y = 0; y < this._mediator.getBoardHeight(); y++) {
                                             const tileView = this.getTileView(x, y);
-                                            const tile = this._board.getTile(x, y);
+                                            const tile = this._mediator.getTile(x, y);
                                             if (tileView && tile) {
                                                 tileView.node.scale = 0;
                                                 tileView.node.opacity = 0;
@@ -440,8 +425,8 @@ export class BoardView extends cc.Component {
 
                                     const allTileViews: TileView[] = [];
 
-                                    for (let x = 0; x < this._board.width; x++) {
-                                        for (let y = 0; y < this._board.height; y++) {
+                                    for (let x = 0; x < this._mediator.getBoardWidth(); x++) {
+                                        for (let y = 0; y < this._mediator.getBoardHeight(); y++) {
                                             const tileView = this.getTileView(x, y);
                                             if (tileView) {
                                                 allTileViews.push(tileView);

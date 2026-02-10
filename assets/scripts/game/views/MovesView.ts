@@ -1,3 +1,4 @@
+import { GameMediator } from "../mechanics/GameMediator";
 import { Moves } from "../mechanics/Moves";
 
 const { ccclass, property } = cc._decorator;
@@ -8,18 +9,18 @@ export class MovesView extends cc.Component {
     @property(cc.Label)
     private label: cc.Label;
 
-    private _moves: Moves;
+    private _mediator: GameMediator;
     private _currentDisplayMoves: number;
 
-    public init(moves: Moves) {
-        this._moves = moves;
-        this._currentDisplayMoves = moves.currentMoves;
+    public init(mediator: GameMediator) {
+        this._mediator = mediator;
+        this._currentDisplayMoves = this._mediator.getMovesCount();
     }
 
     public updateMoves(animated: boolean = true): Promise<void> {
         if (!animated) {
             return new Promise<void>((resolve) => {
-                this.label.string = this.label.string = `${this._moves.currentMoves}`;
+                this.label.string = this.label.string = `${this._mediator.getMovesCount()}`;
                 resolve();
             })
         }
@@ -30,15 +31,15 @@ export class MovesView extends cc.Component {
                 return;
             }
 
-            if (this._currentDisplayMoves == this._moves.currentMoves) {
-                this._currentDisplayMoves = this._moves.currentMoves;
-                this.label.string = `${this._moves.currentMoves}`;
+            if (this._currentDisplayMoves == this._mediator.getMovesCount()) {
+                this._currentDisplayMoves = this._mediator.getMovesCount();
+                this.label.string = `${this._mediator.getMovesCount()}`;
                 resolve();
                 return;
             }
 
             const oldMoves = this._currentDisplayMoves;
-            const newMoves = this._moves.currentMoves;
+            const newMoves = this._mediator.getMovesCount();
             const difference = newMoves - oldMoves;
 
             if (difference === 0) {

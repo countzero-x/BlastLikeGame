@@ -29,8 +29,10 @@ export class Spawner implements PostTurnProcessor, PreGameProcessor, PostGamePro
         return spawnEffect;
     }
 
-    public onPostGame(game: BlastGame) {
+    public onPostGame(game: BlastGame): TurnEffect | null {
         game.board.clear();
+
+        return null;
     }
 
     public onPostTurn(ctx: TurnContext): TurnEffect | null {

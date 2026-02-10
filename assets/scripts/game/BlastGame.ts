@@ -109,13 +109,9 @@ export class BlastGame {
             effects.push(preGameProc.onPreGame(this));
         }
         this.onGameStarted.invoke(effects);
-
-        this.input.onTileClicked.subscribe(this.processTurn, this);
     }
 
     public finish() {
-        this.input.onTileClicked.unsubscribe(this.processTurn, this);
-
         const effects = new Array<TurnEffect>();
         for (var postGameProc of this._postGameProcessors) {
             effects.push(postGameProc.onPostGame(this));
@@ -125,14 +121,14 @@ export class BlastGame {
         this.reset();
     }
 
-    public processTurn(pos: { x: number, y: number }): Array<TurnEffect> {
+    public processTurn(x: number, y: number): Array<TurnEffect> {
         if (!this.input.isEnabled) {
             return;
         }
 
         this._lastTurnContext = this.createTurnCtx();
 
-        const tile = this.board.getTile(pos.x, pos.y);
+        const tile = this.board.getTile(x, y);
         if (!tile || tile.isEmpty) {
             return;
         }

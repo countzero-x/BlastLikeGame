@@ -1,3 +1,4 @@
+import { GameMediator } from "../mechanics/GameMediator";
 import { Score } from "../mechanics/Score";
 
 const { ccclass, property } = cc._decorator;
@@ -9,17 +10,17 @@ export class ScoreView extends cc.Component {
     private label: cc.Label;
 
     private _currentDisplayScore: number
-    private _score: Score;
+    private _mediator: GameMediator;
 
-    public init(game: Score) {
-        this._score = game;
-        this._currentDisplayScore = this._score.currentScore;
+    public init(mediator: GameMediator) {
+        this._mediator = mediator;
+        this._currentDisplayScore = this._mediator.getCurrentScore();
     }
 
     public updateScore(animated: boolean = true): Promise<void> {
         if (!animated) {
             return new Promise<void>((resolve) => {
-                this.label.string = `${this._score.currentScore}/${this._score.targetScore}`;
+                this.label.string = `${this._mediator.getCurrentScore()}/${this._mediator.getTargetScore()}`;
                 resolve();
             })
         }
@@ -30,15 +31,15 @@ export class ScoreView extends cc.Component {
                 return;
             }
 
-            if (this._currentDisplayScore == this._score.currentScore) {
-                this._currentDisplayScore = this._score.currentScore;
-                this.label.string = `${this._score.currentScore}/${this._score.targetScore}`;
+            if (this._currentDisplayScore == this._mediator.getCurrentScore()) {
+                this._currentDisplayScore = this._mediator.getCurrentScore();
+                this.label.string = `${this._mediator.getCurrentScore()}/${this._mediator.getTargetScore()}`;
                 resolve();
                 return;
             }
 
             const oldScore = this._currentDisplayScore;
-            const newScore = this._score.currentScore;
+            const newScore = this._mediator.getCurrentScore();
             const difference = newScore - oldScore;
 
             if (difference === 0) {
@@ -64,7 +65,7 @@ export class ScoreView extends cc.Component {
                             this._currentDisplayScore = newScore;
                         }
 
-                        this.label.string = `${this._currentDisplayScore}/${this._score.targetScore}`;
+                        this.label.string = `${this._currentDisplayScore}/${this._mediator.getTargetScore()}`;
                     })
                 ),
                 steps

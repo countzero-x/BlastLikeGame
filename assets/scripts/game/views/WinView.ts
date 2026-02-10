@@ -1,4 +1,5 @@
 import { BlastGame } from "../BlastGame";
+import { GameMediator } from "../mechanics/GameMediator";
 
 const { ccclass, property } = cc._decorator;
 
@@ -11,14 +12,14 @@ export class WinView extends cc.Component {
     @property(cc.Node)
     private panelWin: cc.Node;
 
-    private _game: BlastGame
+    private _mediator: GameMediator
 
-    public init(game: BlastGame) {
-        this._game = game;
+    public init(mediator: GameMediator) {
+        this._mediator = mediator;
 
         this.button.node.on('click', () => {
-            this._game.finish();
-            this._game.start();
+            this._mediator.finishGame();
+            this._mediator.startGame();
         })
     }
 

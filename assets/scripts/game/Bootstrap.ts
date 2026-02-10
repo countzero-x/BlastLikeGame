@@ -26,9 +26,11 @@ import { LineSuperTileLogic } from "./mechanics/superTiles/LineSuperTileLogic";
 import { RadiusBombSuperTileLogic } from "./mechanics/superTiles/RadiusBombSuperTileLogic";
 import { MaxBombSuperTileLogic } from "./mechanics/superTiles/MaxBombSuperTileLogic";
 import { Input } from "./mechanics/Input";
-import { GameViewController } from "./views/GameViewController";
+import { GameController } from "./views/GameController";
 import { PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor, TileDeletedProcessor, TurnClickProcessor } from "./TurnProcessor";
 import { NormalClickProcessor } from "./NormalClickProcessor";
+import { GameMediator } from "./mechanics/GameMediator";
+import { BlastGameMediator } from "./BlastGameMediator";
 
 const { ccclass, property } = cc._decorator;
 
@@ -201,14 +203,16 @@ export class Bootstrap extends cc.Component {
             tileRemovedProcessors
         );
 
-        this.scoreView.init(game.score);
-        this.movesView.init(game.moves);
+        const mediator = new BlastGameMediator(game);
 
-        this.winView.init(game);
-        this.loseView.init(game);
+        this.scoreView.init(mediator);
+        this.movesView.init(mediator);
 
-        this.bombView.init(game.boosters, BoosterType.BOMB);
-        this.teleportView.init(game.boosters, BoosterType.TELEPORT);
+        this.winView.init(mediator);
+        this.loseView.init(mediator);
+
+        this.bombView.init(mediator, BoosterType.BOMB);
+        this.teleportView.init(mediator, BoosterType.TELEPORT);
 
         const tileViewPool = new TileViewPool();
         tileViewPool.init(this.tilePrefab, this.boardHeight * this.boardWidth);
@@ -224,9 +228,9 @@ export class Bootstrap extends cc.Component {
         tileViewPool.registerSuperTile(SuperTileType.RADIUS_BOMB, this.radiusBombTileSprite);
         tileViewPool.registerSuperTile(SuperTileType.MAX_BOMB, this.maxBombTileSprite);
 
-        this.boardView.init(game.board, game.input, tileViewPool, this.tileSize, this.tileSpacing);
+        this.boardView.init(mediator, tileViewPool, this.tileSize, this.tileSpacing);
 
-        const gameView = new GameViewController(game, this.boardView, new Array<BoosterView>(this.bombView, this.teleportView), this.loseView, this.winView, this.movesView, this.scoreView, this.overlayView);
+        const gameView = new GameController(mediator, this.boardView, new Array<BoosterView>(this.bombView, this.teleportView), this.loseView, this.winView, this.movesView, this.scoreView, this.overlayView);
         gameView.init();
 
         game.start();

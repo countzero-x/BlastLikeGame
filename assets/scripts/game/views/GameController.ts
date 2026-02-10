@@ -1,5 +1,6 @@
 import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
+import { GameMediator } from "../mechanics/GameMediator";
 import { TurnEffect } from "../mechanics/TurnEffect";
 import { DestroyEffect } from "../mechanics/effects/DestroyEffect";
 import { GravityEffect } from "../mechanics/effects/GravityEffect";
@@ -10,7 +11,6 @@ import { SuperTileSpawnEffect } from "../mechanics/effects/SuperTileSpawnEffect"
 import { SwapEffect } from "../mechanics/effects/SwapEffect";
 import { TileSpawnEffect } from "../mechanics/effects/TileSpawnEffect";
 import { WinEffect } from "../mechanics/effects/WinEffect";
-import { Tile } from "../Tile";
 import { BoardView } from "./BoardView";
 import { BoosterView } from "./BoosterView";
 import { LoseView } from "./LoseView";
@@ -19,8 +19,8 @@ import { OverlayView } from "./OverlayView";
 import { ScoreView } from "./ScoreView";
 import { WinView } from "./WinView";
 
-export class GameViewController {
-    private _game: BlastGame;
+export class GameController {
+    private _mediator: GameMediator;
 
     private _boardView: BoardView;
     private _boosterViews: Array<BoosterView>;
@@ -32,7 +32,7 @@ export class GameViewController {
 
     private _boosterViewsMap = new Map<BoosterType, BoosterView>();
 
-    constructor(game: BlastGame,
+    constructor(mediator: GameMediator,
         boardView: BoardView,
         boosterViews: Array<BoosterView>,
         loseView: LoseView,
@@ -41,7 +41,7 @@ export class GameViewController {
         scoreView: ScoreView,
         overlayView: OverlayView,
     ) {
-        this._game = game;
+        this._mediator = mediator;
         this._boardView = boardView;
         this._boosterViews = boosterViews;
         this._loseView = loseView;
@@ -52,9 +52,9 @@ export class GameViewController {
     }
 
     public init() {
-        this._game.onGameStarted.subscribe(this.processEffects, this);
-        this._game.onTurnFinished.subscribe(this.processEffects, this);
-        this._game.onGameFinished.subscribe(this.processEffects, this);
+        this._mediator.onGameStarted.subscribe(this.processEffects, this);
+        this._mediator.onTurnFinished.subscribe(this.processEffects, this);
+        this._mediator.onGameFinished.subscribe(this.processEffects, this);
 
         for (var item of this._boosterViews) {
             this._boosterViewsMap.set(item.type, item);
@@ -63,13 +63,13 @@ export class GameViewController {
         this._overlayView.hide(false);
         this._winView.hide(false);
         this._loseView.hide(false);
-        this._game.input.enable();
+        this._mediator.enableInput();
         this._scoreView.updateScore(false);
         this._movesView.updateMoves(false)
     }
 
     private async processEffects(effects: Array<TurnEffect>) {
-        this._game.input.disable();
+        this._mediator.disableInput();
 
         this._overlayView.hide();
         this._winView.hide();
@@ -116,6 +116,6 @@ export class GameViewController {
         this._scoreView.updateScore();
         this._movesView.updateMoves()
 
-        this._game.input.enable();
+        this._mediator.enableInput();
     }
 }

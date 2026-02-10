@@ -21,6 +21,10 @@ export class Boosters implements TurnClickProcessor {
         this._game.onInputStateChanged.subscribe(this.handleInputStateChanged, this);
     }
 
+    public get boosters(): Array<Booster> {
+        return Array.from(this._boosters.values());
+    }
+
     public get selectedType(): BoosterType {
         return this._selectedType;
     }
@@ -43,7 +47,7 @@ export class Boosters implements TurnClickProcessor {
         return booster.onTileClick(ctx);
     }
 
-    public getBooster(type: BoosterType): Booster {
+    public getBooster(type: BoosterType): Booster | null {
         return this._boosters.get(type);
     }
 
