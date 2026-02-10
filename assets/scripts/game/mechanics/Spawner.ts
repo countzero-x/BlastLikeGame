@@ -20,7 +20,7 @@ export class Spawner implements PostTurnProcessor, PreGameProcessor, PostGamePro
     public onPreGame(game: BlastGame): TurnEffect | null {
         const toSpawn = this.fillWithRegularTiles(game.board);
 
-        for (var tile of toSpawn) {
+        for (const tile of toSpawn) {
             game.board.setTile(tile.x, tile.y, tile);
         }
 
@@ -38,7 +38,7 @@ export class Spawner implements PostTurnProcessor, PreGameProcessor, PostGamePro
     public onPostTurn(ctx: TurnContext): TurnEffect | null {
         const toSpawn = this.fillWithRegularTiles(ctx.board);
 
-        for (var tile of toSpawn) {
+        for (const tile of toSpawn) {
             ctx.board.setTile(tile.x, tile.y, tile);
         }
 

@@ -25,7 +25,7 @@ export class SuperTiles implements TurnClickProcessor {
 
     public onTileClick(ctx: TurnContext): TurnEffect | null {
         if (ctx.selectedTile instanceof SuperTile) {
-            for (var logic of Array.from(this._logics.values())) {
+            for (const logic of Array.from(this._logics.values())) {
                 if (logic.canProcess(ctx)) {
                     return logic.onTileClick(ctx);
                 }

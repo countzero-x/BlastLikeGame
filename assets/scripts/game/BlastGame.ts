@@ -110,7 +110,7 @@ export class BlastGame {
 
     public start() {
         const effects = new Array<TurnEffect>();
-        for (var preGameProc of this._preGameProcessors) {
+        for (const preGameProc of this._preGameProcessors) {
             effects.push(preGameProc.onPreGame(this));
         }
         this.onGameStarted.invoke(effects);
@@ -118,7 +118,7 @@ export class BlastGame {
 
     public finish() {
         const effects = new Array<TurnEffect>();
-        for (var postGameProc of this._postGameProcessors) {
+        for (const postGameProc of this._postGameProcessors) {
             effects.push(postGameProc.onPostGame(this));
         }
         this.onGameFinished.invoke(effects);
@@ -155,29 +155,29 @@ export class BlastGame {
         this._lastTurnContext.selectedTile = tile;
 
         const effects = new Array<TurnEffect>();
-        for (var preTurnProc of this._preTurnProcessors) {
+        for (const preTurnProc of this._preTurnProcessors) {
             if (preTurnProc.canProcess(this._lastTurnContext)) {
                 effects.push(preTurnProc.onPreTurn(this._lastTurnContext));
             }
         }
 
-        for (var clickProcessor of this._clickProcessors) {
+        for (const clickProcessor of this._clickProcessors) {
             if (clickProcessor.canProcess(this._lastTurnContext)) {
                 effects.push(clickProcessor.onTileClick(this._lastTurnContext));
             }
         }
 
-        for (var deletedTile of Array.from(this._lastTurnContext.tilesToRemove)) {
+        for (const deletedTile of Array.from(this._lastTurnContext.tilesToRemove)) {
             this.board.removeTile(deletedTile);
         }
 
-        for (var tileDeteledProcessor of this._tileRemovedProcessors) {
+        for (const tileDeteledProcessor of this._tileRemovedProcessors) {
             if (tileDeteledProcessor.canProcess(this._lastTurnContext)) {
                 effects.push(tileDeteledProcessor.onTileRemoved(this._lastTurnContext));
             }
         }
 
-        for (var postProcessor of this._postTurnProcessors) {
+        for (const postProcessor of this._postTurnProcessors) {
             if (postProcessor.canProcess(this._lastTurnContext)) {
                 effects.push(postProcessor.onPostTurn(this._lastTurnContext));
             }

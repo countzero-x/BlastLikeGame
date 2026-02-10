@@ -41,7 +41,7 @@ export class BombBooster implements Booster {
         }
 
         const tiles = this.getBombAffectedTiles(ctx.selectedTile, ctx.board);
-        for (var tile of tiles) {
+        for (const tile of tiles) {
             ctx.tilesToRemove.add(tile);
         }
 

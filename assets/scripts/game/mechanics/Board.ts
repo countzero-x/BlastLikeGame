@@ -38,7 +38,7 @@ export class Board {
     }
 
     public removeTiles(tiles: Array<Tile>): void {
-        for (var tile of tiles) {
+        for (const tile of tiles) {
             this.removeTileByPosition(tile.x, tile.y);
         }
     }

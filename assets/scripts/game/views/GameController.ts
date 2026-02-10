@@ -59,7 +59,7 @@ export class GameController {
         this._mediator.onBoosterSelected.subscribe(this.processEffects, this);
         this._mediator.onBoosterDeselected.subscribe(this.processEffects, this);
 
-        for (var item of this._boosterViews) {
+        for (const item of this._boosterViews) {
             this._boosterViewsMap.set(item.type, item);
         }
 
@@ -78,7 +78,7 @@ export class GameController {
         this._winView.hide();
         this._loseView.hide();
 
-        for (var effect of effects) {
+        for (const effect of effects) {
             if (effect instanceof DestroyEffect) {
                 await this._boardView.animateTileRemoval(effect.tilesToRemove);
             }

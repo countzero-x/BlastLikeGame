@@ -24,7 +24,7 @@ export class NormalClickProcessor implements TurnClickProcessor {
                 ? [...match, ctx.selectedTile]
                 : [...match];
 
-            for (var tile of toRemove) {
+            for (const tile of toRemove) {
                 ctx.tilesToRemove.add(tile);
             }
 

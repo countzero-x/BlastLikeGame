@@ -25,7 +25,7 @@ export class LineSuperTileLogic implements SuperTileLogic {
     public onTileClick(ctx: TurnContext): TurnEffect | null {
         const tiles = this.activate(ctx.selectedTile as SuperTile, ctx.board);
 
-        for (var tile of tiles) {
+        for (const tile of tiles) {
             ctx.tilesToRemove.add(tile);
         }
 
