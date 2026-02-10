@@ -63,6 +63,10 @@ export default class TileView extends cc.Component {
     }
 
     public animateShake(): void {
+        if (this._originalPos != null) {
+            this.node.setPosition(this._originalPos);
+        }
+        this._originalPos = this.node.position.clone();
         this.node.stopActionByTag(999);
 
         const originalPos = this.node.position.clone();

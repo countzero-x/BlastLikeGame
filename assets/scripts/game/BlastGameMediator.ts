@@ -63,6 +63,10 @@ export class BlastGameMediator implements GameMediator {
         this._game.input.disable();
     }
 
+    public isInputEnabled(): boolean {
+        return this._game.input.isEnabled;
+    }
+
     public click(x: number, y: number): void {
         this._game.processTurn(x, y);
     }

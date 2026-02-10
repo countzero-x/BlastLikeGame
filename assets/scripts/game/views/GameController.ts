@@ -14,19 +14,18 @@ import { TileSpawnEffect } from "../mechanics/effects/TileSpawnEffect";
 import { WinEffect } from "../mechanics/effects/WinEffect";
 import { BoardView } from "./BoardView";
 import { BoosterView } from "./BoosterView";
-import { LoseView } from "./LoseView";
 import { MovesView } from "./MovesView";
 import { OverlayView } from "./OverlayView";
 import { ScoreView } from "./ScoreView";
-import { WinView } from "./WinView";
+import { RestartView } from "./RestartView";
 
 export class GameController {
     private _mediator: GameMediator;
 
     private _boardView: BoardView;
     private _boosterViews: Array<BoosterView>;
-    private _loseView: LoseView;
-    private _winView: WinView;
+    private _loseView: RestartView;
+    private _winView: RestartView;
     private _movesView: MovesView;
     private _scoreView: ScoreView;
     private _overlayView: OverlayView;
@@ -36,8 +35,8 @@ export class GameController {
     constructor(mediator: GameMediator,
         boardView: BoardView,
         boosterViews: Array<BoosterView>,
-        loseView: LoseView,
-        winView: WinView,
+        loseView: RestartView,
+        winView: RestartView,
         movesView: MovesView,
         scoreView: ScoreView,
         overlayView: OverlayView,

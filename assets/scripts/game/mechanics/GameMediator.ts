@@ -23,6 +23,7 @@ export interface GameMediator {
 
     enableInput(): void;
     disableInput(): void;
+    isInputEnabled(): boolean;
 
     click(x: number, y: number): void;
     getBoardWidth(): number;

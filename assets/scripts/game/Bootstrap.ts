@@ -1,12 +1,10 @@
 import { BoardView } from "./views/BoardView";
 import { BoosterView } from "./views/BoosterView";
-import { LoseView } from "./views/LoseView";
 import { MovesView } from "./views/MovesView";
 import { ScoreView } from "./views/ScoreView";
-import { WinView } from "./views/WinView";
+import { RestartView } from "./views/RestartView";
 import { BlastGame } from "./BlastGame";
 import { BoosterType } from "./enums/BoosterType";
-import { GameState } from "./enums/GameState";
 import { OverlayView } from "./views/OverlayView";
 import { TileViewPool } from "./views/TileViewPool";
 import { Board } from "./mechanics/Board";
@@ -29,7 +27,6 @@ import { Input } from "./mechanics/Input";
 import { GameController } from "./views/GameController";
 import { PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor, TileDeletedProcessor, TurnClickProcessor } from "./TurnProcessor";
 import { NormalClickProcessor } from "./NormalClickProcessor";
-import { GameMediator } from "./mechanics/GameMediator";
 import { BlastGameMediator } from "./BlastGameMediator";
 
 const { ccclass, property } = cc._decorator;
@@ -88,11 +85,11 @@ export class Bootstrap extends cc.Component {
     @property(MovesView)
     private movesView: MovesView;
 
-    @property(WinView)
-    private winView: WinView;
+    @property(RestartView)
+    private winView: RestartView;
 
-    @property(LoseView)
-    private loseView: LoseView;
+    @property(RestartView)
+    private loseView: RestartView;
 
     @property(OverlayView)
     private overlayView: OverlayView;
