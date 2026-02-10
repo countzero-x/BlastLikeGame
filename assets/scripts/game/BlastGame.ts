@@ -74,8 +74,11 @@ export class BlastGame {
 
     public start() {
         this._inputState = InputState.NORMAL;
-        this.shuffleBoard();
-        if (this._state !== GameState.LOSE) this.state = GameState.IDLE;
+        this.updateBoard();
+        
+        if (this._state !== GameState.LOSE) {
+            this.state = GameState.IDLE;
+        }
     }
 
     public finish() {
@@ -109,7 +112,7 @@ export class BlastGame {
                 ? this.applyNormalClick(clicked)
                 : this.applyBoosterClick(clicked);
 
-        this.shuffleBoard();
+        this.updateBoard();
         this.state = GameState.REMOVING_TILES;
 
         if (outcome.removedCount > 0) {
@@ -186,7 +189,7 @@ export class BlastGame {
         this.board.setTile(x, y, superTile);
     }
 
-    private shuffleBoard() {
+    private updateBoard() {
         this.shuffle.reset();
 
         this.gravity.applyGravity(this.board);
