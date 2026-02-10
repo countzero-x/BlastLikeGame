@@ -1,6 +1,7 @@
 import { SuperTileType } from "./SuperTileType";
 import { Tile } from "../../Tile";
-import { Board, TurnEffect } from "../Board";
+import { Board } from "../Board";
+import { TurnEffect } from "../TurnEffect";
 import { SuperTile } from "./SuperTile";
 import { SuperTileLogic } from "./SuperTileLogic";
 import { TurnContext } from "../../TurnContext";

@@ -1,5 +1,5 @@
 import { InputState } from "./enums/InputState";
-import { TurnEffect } from "./mechanics/Board";
+import { TurnEffect } from "./mechanics/TurnEffect";
 import { DestroyEffect } from "./mechanics/effects/DestroyEffect";
 import { ShakeEffect } from "./mechanics/effects/ShakeEffect";
 import { SuperTile } from "./mechanics/superTiles/SuperTile";

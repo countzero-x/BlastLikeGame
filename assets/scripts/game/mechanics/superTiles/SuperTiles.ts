@@ -1,4 +1,5 @@
-import { Board, TurnEffect } from "../Board";
+import { Board } from "../Board";
+import { TurnEffect } from "../TurnEffect";
 import { SuperTileType } from "./SuperTileType";
 import { Tile } from "../../Tile";
 import { SuperTile } from "./SuperTile";

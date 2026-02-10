@@ -4,7 +4,7 @@ import { BoosterType } from "../enums/BoosterType";
 import { InputState } from "../enums/InputState";
 import { TurnContext } from "../TurnContext";
 import { TurnClickProcessor } from "../TurnProcessor";
-import { TurnEffect } from "./Board";
+import { TurnEffect } from "./TurnEffect";
 import { Booster } from "./boosters/Booster";
 
 export class Boosters implements TurnClickProcessor {

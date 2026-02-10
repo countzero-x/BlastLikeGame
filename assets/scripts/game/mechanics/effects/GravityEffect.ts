@@ -1,4 +1,4 @@
-import { TurnEffect } from "../Board";
+import { TurnEffect } from "../TurnEffect";
 import { TileMove } from "../Gravity";
 
 

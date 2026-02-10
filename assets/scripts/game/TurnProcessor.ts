@@ -1,6 +1,6 @@
 import { BlastGame } from "./BlastGame";
 import { TurnContext } from "./TurnContext";
-import { TurnEffect } from "./mechanics/Board";
+import { TurnEffect } from "./mechanics/TurnEffect";
 
 export interface TurnProcessor {
     canProcess(ctx: TurnContext): boolean;

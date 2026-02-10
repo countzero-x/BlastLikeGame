@@ -1,8 +1,5 @@
 import { Tile } from "../Tile";
 
-export interface TurnEffect {
-}
-
 export class Board {
     public tiles: Map<number, Tile>;
     readonly width: number;

@@ -2,7 +2,7 @@ import { GameEvent } from "../../GameEvent";
 import { GameState } from "../enums/GameState";
 import { TurnContext } from "../TurnContext";
 import { PostTurnProcessor } from "../TurnProcessor";
-import { TurnEffect } from "./Board";
+import { TurnEffect } from "./TurnEffect";
 import { LoseEffect } from "./effects/LoseEffect";
 
 export class Moves implements PostTurnProcessor {

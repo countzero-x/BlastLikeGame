@@ -1,6 +1,6 @@
 import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
-import { TurnEffect } from "../mechanics/Board";
+import { TurnEffect } from "../mechanics/TurnEffect";
 import { DestroyEffect } from "../mechanics/effects/DestroyEffect";
 import { GravityEffect } from "../mechanics/effects/GravityEffect";
 import { LoseEffect } from "../mechanics/effects/LoseEffect";

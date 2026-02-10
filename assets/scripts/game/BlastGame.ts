@@ -1,7 +1,8 @@
 import { GameEvent } from "../GameEvent";
 import { GameState } from "./enums/GameState";
 import { InputState } from "./enums/InputState";
-import { Board, TurnEffect } from "./mechanics/Board";
+import { Board } from "./mechanics/Board";
+import { TurnEffect } from "./mechanics/TurnEffect";
 import { Boosters } from "./mechanics/Boosters";
 import { Gravity } from "./mechanics/Gravity";
 import { Input } from "./mechanics/Input";

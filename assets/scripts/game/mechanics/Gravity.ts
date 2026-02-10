@@ -2,7 +2,8 @@ import { TileColor } from "../enums/TileColor";
 import { Tile } from "../Tile";
 import { TurnContext } from "../TurnContext";
 import { PostTurnProcessor, TurnClickProcessor } from "../TurnProcessor";
-import { Board, TurnEffect } from "./Board";
+import { Board } from "./Board";
+import { TurnEffect } from "./TurnEffect";
 import { GravityEffect } from "./effects/GravityEffect";
 
 export interface TileMove {

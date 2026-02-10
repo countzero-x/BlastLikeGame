@@ -3,7 +3,8 @@ import { BoosterType } from "../../enums/BoosterType";
 import { InputState } from "../../enums/InputState";
 import { Tile } from "../../Tile";
 import { TurnContext } from "../../TurnContext";
-import { Board, TurnEffect } from "../Board";
+import { Board } from "../Board";
+import { TurnEffect } from "../TurnEffect";
 import { DestroyEffect } from "../effects/DestroyEffect";
 import { Booster } from "./Booster";
 

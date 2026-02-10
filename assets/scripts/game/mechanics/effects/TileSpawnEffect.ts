@@ -1,5 +1,5 @@
 import { Tile } from "../../Tile";
-import { TurnEffect } from "../Board";
+import { TurnEffect } from "../TurnEffect";
 
 export class TileSpawnEffect implements TurnEffect {
     public tilesToSpawn: Array<Tile>;

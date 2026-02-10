@@ -1,5 +1,5 @@
 import { Tile } from "../../Tile";
-import { TurnEffect } from "../Board";
+import { TurnEffect } from "../TurnEffect";
 
 
 export class DestroyEffect implements TurnEffect {

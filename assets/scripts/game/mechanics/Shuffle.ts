@@ -1,4 +1,5 @@
-import { Board, TurnEffect } from "./Board";
+import { Board } from "./Board";
+import { TurnEffect } from "./TurnEffect";
 import { Tile } from "../Tile";
 import { PreTurnProcessor } from "../TurnProcessor";
 import { TurnContext } from "../TurnContext";
