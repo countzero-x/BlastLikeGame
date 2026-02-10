@@ -5,7 +5,6 @@
 /library/
 /temp/
 /local/
-/build/
 native
 #/////////////////////////////////////////////////////////////////////////////
 # npm files
@@ -56,15 +55,11 @@ Thumbs.db
 # Cocos Creator Projects
 #/////////////////////////////////////////////////////////////////////////////
 
-build/
 library/
 temp/
 local/
 jsb-binary/
-web-desktop/
-web-mobile/
 runtime/
-build/
 jsb/
 export/
 
