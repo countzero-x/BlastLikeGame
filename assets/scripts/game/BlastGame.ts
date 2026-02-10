@@ -33,7 +33,7 @@ export class BlastGame {
     public readonly onGameStarted = new GameEvent<Array<TurnEffect>>();
     public readonly onGameFinished = new GameEvent<Array<TurnEffect>>();
 
-    private _state: GameState = GameState.IDLE;
+    private _state: GameState = GameState.GAME;
     private _inputState: InputState = InputState.NORMAL;
     private _lastTurnContext: TurnContext;
 
@@ -75,26 +75,21 @@ export class BlastGame {
 
         this._lastTurnContext = this.createTurnCtx();
 
-        this.boosters.setContext({
-            board: this.board,
-            setInputState: this.setInputState.bind(this),
-            getInputState: this.getInputState.bind(this),
-            inputStateChanged: this.onInputStateChanged
-        });
-
         this._preGameProcessors = preGameProcessors;
         this._postGameProcessors = postGameProcessors;
         this._preTurnProcessors = preProcessors;
         this._clickProcessors = clickProcessors;
         this._postTurnProcessors = postProcessors;
         this._tileRemovedProcessors = tileRemovedProcessors;
+
+        this.boosters.init(this);
     }
 
     public get lastTurnContext(): TurnContext {
         return this._lastTurnContext;
     }
 
-    public get state(): GameState {
+    public getState(): GameState {
         return this._state;
     }
 
@@ -102,8 +97,12 @@ export class BlastGame {
         return this._inputState;
     }
 
-    public start() {
+    public setInputState(state: InputState) {
+        this._inputState = state;
+        this.onInputStateChanged.invoke(this._inputState);
+    }
 
+    public start() {
         const effects = new Array<TurnEffect>();
         for (var preGameProc of this._preGameProcessors) {
             effects.push(preGameProc.onPreGame(this));
@@ -129,7 +128,7 @@ export class BlastGame {
         if (!this.input.isEnabled) {
             return;
         }
-        
+
         this._lastTurnContext = this.createTurnCtx();
 
         const tile = this.board.getTile(pos.x, pos.y);
@@ -156,11 +155,11 @@ export class BlastGame {
             this.board.removeTile(deletedTile);
         }
 
-        // for (var tileDeteledProcessor of this._tileRemovedProcessors) {
-        //     if (tileDeteledProcessor.canProcess(this._lastTurnContext)) {
-        //         effects.push(tileDeteledProcessor.onTileRemoved(this._lastTurnContext));
-        //     }
-        // }
+        for (var tileDeteledProcessor of this._tileRemovedProcessors) {
+            if (tileDeteledProcessor.canProcess(this._lastTurnContext)) {
+                effects.push(tileDeteledProcessor.onTileRemoved(this._lastTurnContext));
+            }
+        }
 
         for (var postProcessor of this._postTurnProcessors) {
             if (postProcessor.canProcess(this._lastTurnContext)) {
@@ -182,18 +181,15 @@ export class BlastGame {
 
     private setState(state: GameState) {
         this._state = state;
-        this.onStateChanged.invoke(this.state);
-    }
-
-    private setInputState(state: InputState) {
-        this._inputState = state;
-        this.onInputStateChanged.invoke(this.getInputState());
+        this.onStateChanged.invoke(this._state);
     }
 
     private createTurnCtx(): TurnContext {
         return {
-            state: this._state,
-            inputState: this._inputState,
+            getState: this.getState.bind(this),
+            setState: this.setState.bind(this),
+            getInputState: this.getInputState.bind(this),
+            setInputState: this.setInputState.bind(this),
             selectedTile: null,
             spawner: this.spawner,
             board: this.board,

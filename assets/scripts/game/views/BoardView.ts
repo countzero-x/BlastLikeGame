@@ -343,6 +343,54 @@ export class BoardView extends cc.Component {
         });
     }
 
+    public animateTileSwap(left: Tile, right: Tile): Promise<void> {
+        return new Promise((resolve) => {
+            const tileView1 = this.getTileView(left.x, left.y);
+            const tileView2 = this.getTileView(right.x, right.y);
+
+            if (!tileView1 || !tileView2) {
+                resolve();
+                return;
+            }
+
+            const duration = 0.3;
+            let completed = 0;
+
+            const onComplete = () => {
+                completed++;
+                if (completed === 2) {
+                    resolve();
+                }
+            };
+
+            tileView1.node.runAction(
+                cc.sequence(
+                    cc.scaleTo(duration / 2, 0).easing(cc.easeIn(2)),
+                    cc.callFunc(() => {
+                        const newPos = this.gridToWorldPos(right.x, right.y);
+                        tileView1.node.position = newPos;
+                        this._tileViews[right.x][right.y] = tileView1;
+                    }),
+                    cc.scaleTo(duration / 2, 1.0).easing(cc.easeOut(2)),
+                    cc.callFunc(onComplete)
+                )
+            );
+
+            tileView2.node.runAction(
+                cc.sequence(
+                    cc.scaleTo(duration / 2, 0).easing(cc.easeIn(2)),
+                    cc.callFunc(() => {
+                        const newPos = this.gridToWorldPos(left.x, left.y);
+                        tileView2.node.position = newPos;
+                        this._tileViews[left.x][left.y] = tileView2;
+                    }),
+                    cc.scaleTo(duration / 2, 1.0).easing(cc.easeOut(2)),
+                    cc.callFunc(onComplete)
+                )
+            );
+        });
+    }
+
     public animateShuffle(): Promise<void> {
         return new Promise<void>((resolve) => {
             if (this._tileViews.length === 0) {

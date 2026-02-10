@@ -7,6 +7,7 @@ import { LoseEffect } from "../mechanics/effects/LoseEffect";
 import { ShakeEffect } from "../mechanics/effects/ShakeEffect";
 import { ShuffleEffect } from "../mechanics/effects/ShuffleEffect";
 import { SuperTileSpawnEffect } from "../mechanics/effects/SuperTileSpawnEffect";
+import { SwapEffect } from "../mechanics/effects/SwapEffect";
 import { TileSpawnEffect } from "../mechanics/effects/TileSpawnEffect";
 import { WinEffect } from "../mechanics/effects/WinEffect";
 import { Tile } from "../Tile";
@@ -58,6 +59,8 @@ export class GameViewController {
         for (var item of this._boosterViews) {
             this._boosterViewsMap.set(item.type, item);
         }
+
+        this._game.input.enable();
     }
 
     private async processEffects(effects: Array<TurnEffect>) {
@@ -87,6 +90,9 @@ export class GameViewController {
                 const view = this._boardView.getTileView(effect.tileToShake.x, effect.tileToShake.y);
                 view.animateShake();
             }
+            else if (effect instanceof SwapEffect) {
+                await this._boardView.animateTileSwap(effect.left, effect.right);
+            }
             else if (effect instanceof WinEffect) {
                 await this._boardView.animateHideTiles();
                 await this._overlayView.show(true);
@@ -101,8 +107,8 @@ export class GameViewController {
             }
         }
 
-        await this._scoreView.animateScoreUpdate();
-        await this._movesView.animateMovesUpdate();
+        this._scoreView.animateScoreUpdate();
+        this._movesView.animateMovesUpdate()
 
         this._game.input.enable();
     }

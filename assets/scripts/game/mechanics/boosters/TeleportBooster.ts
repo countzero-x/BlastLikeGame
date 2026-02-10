@@ -5,7 +5,7 @@ import { Tile } from "../../Tile";
 import { TurnContext } from "../../TurnContext";
 import { TurnEffect } from "../Board";
 import { SwapEffect } from "../effects/SwapEffect";
-import { Booster } from "./IBooster";
+import { Booster } from "./Booster";
 
 export class TeleportBooster implements Booster {
     public readonly type = BoosterType.TELEPORT;
@@ -33,7 +33,7 @@ export class TeleportBooster implements Booster {
 
         if (!this._firstTile) {
             this._firstTile = ctx.selectedTile;
-            ctx.inputState = InputState.TELEPORT_PHASE_TWO;
+            ctx.setInputState(InputState.TELEPORT_PHASE_TWO);
             return null;
         }
 
@@ -45,7 +45,7 @@ export class TeleportBooster implements Booster {
 
         this._firstTile = null;
         this.setCount(this._count - 1);
-        ctx.inputState = InputState.NORMAL;
+        ctx.setInputState(InputState.NORMAL);
 
         return effect;
     }

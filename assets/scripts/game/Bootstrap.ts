@@ -140,8 +140,8 @@ export class Bootstrap extends cc.Component {
         const spawner = new Spawner();
         spawner.register(TileColor.RED);
         spawner.register(TileColor.BLUE);
-        // spawner.register(TileColor.GREEN);
-        // spawner.register(TileColor.YELLOW);
+        spawner.register(TileColor.GREEN);
+        spawner.register(TileColor.YELLOW);
         spawner.register(TileColor.PURPLE);
 
         const board = new Board(this.boardWidth, this.boardHeight);
@@ -154,11 +154,11 @@ export class Bootstrap extends cc.Component {
         const input = new Input();
 
         const preGameProcessors: Array<PreGameProcessor> = [
-            spawner
+            spawner,
         ]
 
         const postGameProcessors: Array<PostGameProcessor> = [
-            spawner
+            spawner,
         ]
 
         const preTurnProcessors: Array<PreTurnProcessor> = [
@@ -175,7 +175,7 @@ export class Bootstrap extends cc.Component {
             gravity,
             spawner,
             moves,
-            score
+            score,
         ];
 
         const tileRemovedProcessors: Array<TileDeletedProcessor> = [

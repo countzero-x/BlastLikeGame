@@ -5,7 +5,7 @@ import { Tile } from "../../Tile";
 import { TurnContext } from "../../TurnContext";
 import { Board, TurnEffect } from "../Board";
 import { DestroyEffect } from "../effects/DestroyEffect";
-import { Booster, BoosterContext } from "./IBooster";
+import { Booster } from "./Booster";
 
 export class BombBooster implements Booster {
     public readonly type = BoosterType.BOMB;
@@ -37,7 +37,7 @@ export class BombBooster implements Booster {
         }
 
         this.setCount(this._count - 1);
-        ctx.inputState = InputState.NORMAL;
+        ctx.setInputState(InputState.NORMAL);
 
         const result: DestroyEffect = new DestroyEffect();
         result.tilesToRemove = tiles;

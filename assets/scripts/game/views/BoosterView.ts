@@ -1,7 +1,7 @@
 import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
 import { Boosters } from "../mechanics/Boosters";
-import { Booster } from "../mechanics/boosters/IBooster";
+import { Booster } from "../mechanics/boosters/Booster";
 
 const { ccclass, property } = cc._decorator;
 

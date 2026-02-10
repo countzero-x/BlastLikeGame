@@ -1,23 +1,24 @@
 import { GameEvent } from "../../GameEvent";
+import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
 import { InputState } from "../enums/InputState";
 import { TurnContext } from "../TurnContext";
 import { TurnClickProcessor } from "../TurnProcessor";
 import { TurnEffect } from "./Board";
-import { BoosterContext, Booster } from "./boosters/IBooster";
+import { Booster } from "./boosters/Booster";
 
 export class Boosters implements TurnClickProcessor {
+    private _game: BlastGame;
+
     private readonly _boosters = new Map<BoosterType, Booster>();
 
     private _selectedType: BoosterType = BoosterType.NONE;
-    private _ctx: BoosterContext;
 
     public readonly onSelectedTypeChanged = new GameEvent<BoosterType>();
 
-    public setContext(context: BoosterContext) {
-        this._ctx = context;
-
-        this._ctx.inputStateChanged.subscribe(this.handleInputStateChanged, this);
+    public init(game: BlastGame) {
+        this._game = game;
+        this._game.onInputStateChanged.subscribe(this.handleInputStateChanged, this);
     }
 
     public get selectedType(): BoosterType {
@@ -29,8 +30,8 @@ export class Boosters implements TurnClickProcessor {
         this.onSelectedTypeChanged.invoke(this.selectedType);
     }
 
-    canProcess(ctx: TurnContext): boolean {
-        return ctx.inputState != InputState.NORMAL;
+    public canProcess(ctx: TurnContext): boolean {
+        return ctx.getInputState() != InputState.NORMAL;
     }
 
     public onTileClick(ctx: TurnContext): TurnEffect | null {
@@ -59,18 +60,19 @@ export class Boosters implements TurnClickProcessor {
 
     public apply(type: BoosterType): void {
         const booster = this._boosters.get(type);
-        this.selectedType = type;
 
         if (!booster || type == BoosterType.NONE) {
-            this._ctx.setInputState(InputState.NORMAL);
+            this._game.setInputState(InputState.NORMAL);
             return;
         }
 
-        this._ctx.setInputState(booster.initialInputState);
+        this._game.setInputState(booster.initialInputState);
     }
 
     public canApply(type: BoosterType): boolean {
-        if (type == BoosterType.NONE) return true;
+        if (type == BoosterType.NONE) {
+            return true;
+        }
         const booster = this._boosters.get(type);
         return booster?.canUse() ?? false;
     }
@@ -78,14 +80,14 @@ export class Boosters implements TurnClickProcessor {
     private handleInputStateChanged(state: InputState) {
         switch (state) {
             case InputState.NORMAL:
-                this._selectedType = BoosterType.NONE;
+                this.selectedType = BoosterType.NONE;
                 break;
             case InputState.BOMB:
-                this._selectedType = BoosterType.BOMB;
+                this.selectedType = BoosterType.BOMB;
                 break
             case InputState.TELEPORT_PHASE_ONE:
             case InputState.TELEPORT_PHASE_TWO:
-                this._selectedType = BoosterType.TELEPORT;
+                this.selectedType = BoosterType.TELEPORT;
                 break;
         }
     }

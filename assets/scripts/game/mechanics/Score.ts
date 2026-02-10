@@ -27,7 +27,7 @@ export class Score implements PostTurnProcessor {
         this.addScore(this.calculateScore(ctx.tilesToRemove.size));
 
         if (this.hasReachedTarget()) {
-            ctx.state = GameState.WIN;
+            ctx.setState(GameState.WIN);
             return new WinEffect();
         }
 

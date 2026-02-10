@@ -8,7 +8,7 @@ import { TurnClickProcessor } from "./TurnProcessor";
 
 export class NormalClickProcessor implements TurnClickProcessor {
     public canProcess(ctx: TurnContext): boolean {
-        return ctx.inputState == InputState.NORMAL;
+        return ctx.getInputState() == InputState.NORMAL;
     }
 
     public onTileClick(ctx: TurnContext): TurnEffect | null {

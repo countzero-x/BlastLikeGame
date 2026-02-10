@@ -31,7 +31,7 @@ export class Moves implements PostTurnProcessor {
         }
 
         if (!this.hasMovesLeft()) {
-            ctx.state = GameState.LOSE;
+            ctx.setState(GameState.WIN);
             return new LoseEffect();
         }
 

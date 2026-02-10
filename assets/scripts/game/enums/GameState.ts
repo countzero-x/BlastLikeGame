@@ -1,10 +1,6 @@
 
 export enum GameState {
-    IDLE = 'IDLE',
-    REMOVING_TILES = 'REMOVING_TILES',
-    APPLYING_GRAVITY = 'APPLYING_GRAVITY',
-    SPAWNING_TILES = 'SPAWNING_TILES',
-    SHUFFLING = 'SHUFFLING',
-    LOSE = 'GAME_OVER',
-    WIN = 'WIN'
+    GAME = 0,
+    LOSE = 1,
+    WIN = 2
 }
