@@ -1,4 +1,4 @@
-import { SuperTileType } from "../../enums/SuperTileType";
+import { SuperTileType } from "./SuperTileType";
 
 
 export class SuperTileFactory {

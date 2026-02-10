@@ -1,12 +1,48 @@
-import { Board } from "./Board";
-import { SuperTileType } from "../enums/SuperTileType";
+import { Board, TurnEffect } from "./Board";
+import { SuperTileType } from "./superTiles/SuperTileType";
 import { TileColor } from "../enums/TileColor";
 import { Tile } from "../Tile";
 import { SuperTile } from "./superTiles/SuperTile";
+import { PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor } from "../TurnProcessor";
+import { TurnContext } from "../TurnContext";
+import { TileSpawnEffect } from "./effects/TileSpawnEffect";
+import { BlastGame } from "../BlastGame";
 
-export class Spawner {
+export class Spawner implements PostTurnProcessor, PreGameProcessor, PostGameProcessor {
 
     private avaliableColors = Array<TileColor>();
+
+    public canProcess(ctx: TurnContext): boolean {
+        return true;
+    }
+
+    public onPreGame(game: BlastGame): TurnEffect | null {
+        const toSpawn = this.fillWithRegularTiles(game.board);
+
+        for (var tile of toSpawn) {
+            game.board.setTile(tile.x, tile.y, tile);
+        }
+
+        const spawnEffect = new TileSpawnEffect();
+        spawnEffect.tilesToSpawn = toSpawn;
+        return spawnEffect;
+    }
+
+    public onPostGame(game: BlastGame) {
+        game.board.clear();
+    }
+
+    public onPostTurn(ctx: TurnContext): TurnEffect | null {
+        const toSpawn = this.fillWithRegularTiles(ctx.board);
+
+        for (var tile of toSpawn) {
+            ctx.board.setTile(tile.x, tile.y, tile);
+        }
+
+        const spawnEffect = new TileSpawnEffect();
+        spawnEffect.tilesToSpawn = toSpawn;
+        return spawnEffect;
+    }
 
     public register(color: TileColor) {
         this.avaliableColors.push(color);

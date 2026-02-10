@@ -1,4 +1,4 @@
-import { SuperTileType } from "../enums/SuperTileType";
+import { SuperTileType } from "../mechanics/superTiles/SuperTileType";
 import { TileColor } from "../enums/TileColor";
 import { SuperTile } from "../mechanics/superTiles/SuperTile";
 import { Tile } from "../Tile";

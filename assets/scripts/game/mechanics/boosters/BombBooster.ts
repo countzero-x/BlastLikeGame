@@ -2,11 +2,12 @@ import { GameEvent } from "../../../GameEvent";
 import { BoosterType } from "../../enums/BoosterType";
 import { InputState } from "../../enums/InputState";
 import { Tile } from "../../Tile";
-import { Board } from "../Board";
-import { IBooster, BoosterContext } from "./IBooster";
+import { TurnContext } from "../../TurnContext";
+import { Board, TurnEffect } from "../Board";
+import { DestroyEffect } from "../effects/DestroyEffect";
+import { Booster, BoosterContext } from "./IBooster";
 
-
-export class BombBooster implements IBooster {
+export class BombBooster implements Booster {
     public readonly type = BoosterType.BOMB;
     public readonly initialInputState = InputState.BOMB;
     public readonly onCountChanged = new GameEvent<number>();
@@ -21,21 +22,34 @@ export class BombBooster implements IBooster {
         this._count = count;
     }
 
+    public canProcess(ctx: TurnContext): boolean {
+        return this.canUse();
+    }
+
+    public onTileClick(ctx: TurnContext): TurnEffect {
+        if (!this.canUse()) {
+            return [];
+        }
+
+        const tiles = this.getBombAffectedTiles(ctx.selectedTile, ctx.board);
+        for (var tile of tiles) {
+            ctx.tilesToRemove.add(tile);
+        }
+
+        this.setCount(this._count - 1);
+        ctx.inputState = InputState.NORMAL;
+
+        const result: DestroyEffect = new DestroyEffect();
+        result.tilesToRemove = tiles;
+        return result;
+    }
+
     public getCount(): number {
         return this._count;
     }
 
     public canUse(): boolean {
         return this._count > 0;
-    }
-
-    public onClick(ctx: BoosterContext, tile: Tile): Tile[] {
-        if (!this.canUse()) return [];
-
-        const tiles = this.getBombAffectedTiles(tile, ctx.board);
-        this.setCount(this._maxCount - 1);
-        ctx.setInputState(InputState.NORMAL);
-        return tiles;
     }
 
     public reset(): void {

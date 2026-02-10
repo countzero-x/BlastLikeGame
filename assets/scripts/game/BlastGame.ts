@@ -1,8 +1,7 @@
 import { GameEvent } from "../GameEvent";
 import { GameState } from "./enums/GameState";
 import { InputState } from "./enums/InputState";
-import { SuperTileType } from "./enums/SuperTileType";
-import { Board } from "./mechanics/Board";
+import { Board, TurnEffect } from "./mechanics/Board";
 import { Boosters } from "./mechanics/Boosters";
 import { Gravity } from "./mechanics/Gravity";
 import { Input } from "./mechanics/Input";
@@ -11,16 +10,12 @@ import { Moves } from "./mechanics/Moves";
 import { Score } from "./mechanics/Score";
 import { Shuffle } from "./mechanics/Shuffle";
 import { Spawner } from "./mechanics/Spawner";
-import { SuperTile } from "./mechanics/superTiles/SuperTile";
 import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { Tile } from "./Tile";
-import { TurnOutcome } from "./TurnOutcome";
+import { TurnContext } from "./TurnContext";
+import { PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor, TileDeletedProcessor, TurnClickProcessor } from "./TurnProcessor";
 
 export class BlastGame {
-    private _inputState: InputState = InputState.NORMAL;
-    private _state: GameState = GameState.IDLE;
-    private _lastTurnOutcome: TurnOutcome | null = null;
-
     public readonly input: Input;
     public readonly board: Board;
     public readonly score: Score;
@@ -34,7 +29,20 @@ export class BlastGame {
 
     public readonly onStateChanged = new GameEvent<GameState>();
     public readonly onInputStateChanged = new GameEvent<InputState>();
-    public readonly onMoveCompleted = new GameEvent<TurnOutcome>();
+    public readonly onTurnFinished = new GameEvent<Array<TurnEffect>>();
+    public readonly onGameStarted = new GameEvent<Array<TurnEffect>>();
+    public readonly onGameFinished = new GameEvent<Array<TurnEffect>>();
+
+    private _state: GameState = GameState.IDLE;
+    private _inputState: InputState = InputState.NORMAL;
+    private _lastTurnContext: TurnContext;
+
+    private _preGameProcessors: Array<PreGameProcessor>;
+    private _postGameProcessors: Array<PostGameProcessor>
+    private _preTurnProcessors: Array<PreTurnProcessor>;
+    private _clickProcessors: Array<TurnClickProcessor>;
+    private _postTurnProcessors: Array<PostTurnProcessor>;
+    private _tileRemovedProcessors: Array<TileDeletedProcessor>;
 
     constructor(
         input: Input,
@@ -47,6 +55,12 @@ export class BlastGame {
         gravity: Gravity,
         superTiles: SuperTiles,
         boosters: Boosters,
+        preGameProcessors: Array<PreGameProcessor>,
+        postGameProcessors: Array<PostGameProcessor>,
+        preProcessors: Array<PreTurnProcessor>,
+        clickProcessors: Array<TurnClickProcessor>,
+        postProcessors: Array<PostTurnProcessor>,
+        tileRemovedProcessors: Array<TileDeletedProcessor>,
     ) {
         this.input = input;
         this.board = board;
@@ -59,7 +73,7 @@ export class BlastGame {
         this.superTiles = superTiles;
         this.boosters = boosters;
 
-        this._lastTurnOutcome = this.getEmptyTurnOutcome();
+        this._lastTurnContext = this.createTurnCtx();
 
         this.boosters.setContext({
             board: this.board,
@@ -67,10 +81,17 @@ export class BlastGame {
             getInputState: this.getInputState.bind(this),
             inputStateChanged: this.onInputStateChanged
         });
+
+        this._preGameProcessors = preGameProcessors;
+        this._postGameProcessors = postGameProcessors;
+        this._preTurnProcessors = preProcessors;
+        this._clickProcessors = clickProcessors;
+        this._postTurnProcessors = postProcessors;
+        this._tileRemovedProcessors = tileRemovedProcessors;
     }
 
-    public get lastTurnOutcome(): TurnOutcome {
-        return this._lastTurnOutcome;
+    public get lastTurnContext(): TurnContext {
+        return this._lastTurnContext;
     }
 
     public get state(): GameState {
@@ -82,189 +103,81 @@ export class BlastGame {
     }
 
     public start() {
-        this.input.onTileClicked.subscribe(this.makeMove, this);
 
-        this.setInputState(InputState.NORMAL);
-        const initialUpdate = this.updateBoard();
-
-        this._lastTurnOutcome = {
-            state: GameState.IDLE,
-            inputState: InputState.NORMAL,
-            selectedTile: null,
-            movements: [],
-            removedTiles: [],
-            initialMatchCount: 0,
-            consumedMove: false,
-            superTile: null,
-            newTiles: initialUpdate.newTiles || [],
-            shuffleRequired: false
-        };
-
-        this.onMoveCompleted.invoke(this.lastTurnOutcome);
-
-        if (this._state !== GameState.LOSE) {
-            this.setState(GameState.IDLE);
+        const effects = new Array<TurnEffect>();
+        for (var preGameProc of this._preGameProcessors) {
+            effects.push(preGameProc.onPreGame(this));
         }
+        this.onGameStarted.invoke(effects);
+
+        this.input.onTileClicked.subscribe(this.processTurn, this);
     }
 
     public finish() {
-        this.input.onTileClicked.unsubscribe(this.makeMove, this);
+        this.input.onTileClicked.unsubscribe(this.processTurn, this);
+
+        const effects = new Array<TurnEffect>();
+        for (var postGameProc of this._postGameProcessors) {
+            effects.push(postGameProc.onPostGame(this));
+        }
+        this.onGameFinished.invoke(effects);
+
         this.reset();
     }
 
-    public makeMove(pos: { x: number, y: number }) {
+    public processTurn(pos: { x: number, y: number }): Array<TurnEffect> {
         if (!this.input.isEnabled) {
             return;
         }
+        
+        this._lastTurnContext = this.createTurnCtx();
 
         const tile = this.board.getTile(pos.x, pos.y);
         if (!tile || tile.isEmpty) {
             return;
         }
 
-        this.processTurn(tile);
+        this._lastTurnContext.selectedTile = tile;
+
+        const effects = new Array<TurnEffect>();
+        for (var preTurnProc of this._preTurnProcessors) {
+            if (preTurnProc.canProcess(this._lastTurnContext)) {
+                effects.push(preTurnProc.onPreTurn(this._lastTurnContext));
+            }
+        }
+
+        for (var clickProcessor of this._clickProcessors) {
+            if (clickProcessor.canProcess(this._lastTurnContext)) {
+                effects.push(clickProcessor.onTileClick(this._lastTurnContext));
+            }
+        }
+
+        for (var deletedTile of Array.from(this._lastTurnContext.tilesToRemove)) {
+            this.board.removeTile(deletedTile);
+        }
+
+        // for (var tileDeteledProcessor of this._tileRemovedProcessors) {
+        //     if (tileDeteledProcessor.canProcess(this._lastTurnContext)) {
+        //         effects.push(tileDeteledProcessor.onTileRemoved(this._lastTurnContext));
+        //     }
+        // }
+
+        for (var postProcessor of this._postTurnProcessors) {
+            if (postProcessor.canProcess(this._lastTurnContext)) {
+                effects.push(postProcessor.onPostTurn(this._lastTurnContext));
+            }
+        }
+
+        this.onTurnFinished.invoke(effects);
     }
 
     private reset() {
         this.setInputState(InputState.NORMAL);
-        this._lastTurnOutcome = null;
+        this._lastTurnContext = null;
         this.score.reset();
         this.moves.reset();
         this.boosters.reset();
         this.board.clear();
-    }
-
-    private processTurn(clicked: Tile): void {
-        const outcome =
-            this.getInputState() == InputState.NORMAL
-                ? this.applyNormalClick(clicked)
-                : this.applyBoosterClick(clicked);
-
-        const boardOutcome = this.updateBoard();
-        this.setState(GameState.REMOVING_TILES);
-
-        if (outcome.removedTiles && outcome.removedTiles.length > 0) {
-            this.score.addScore(this.score.calculateScore(outcome.removedTiles.length));
-            if (outcome.consumedMove) this.moves.decrementMove();
-        }
-
-        let resultState = GameState.IDLE;
-
-        if (this.score.hasReachedTarget()) {
-            resultState = GameState.WIN;
-        }
-
-        if (!this.moves.hasMovesLeft()) {
-            resultState = GameState.LOSE;
-        }
-
-        const turnOutcome: TurnOutcome = {
-            state: resultState,
-            inputState: this.getInputState(),
-            selectedTile: clicked,
-            movements: boardOutcome.movements || [],
-            removedTiles: outcome.removedTiles || [],
-            initialMatchCount: outcome.initialMatchCount || 0,
-            consumedMove: outcome.consumedMove || false,
-            superTile: outcome.superTile || null,
-            newTiles: boardOutcome.newTiles || [],
-            shuffleRequired: outcome.shuffleRequired
-        };
-        this._lastTurnOutcome = turnOutcome;
-
-        this.onMoveCompleted.invoke(this._lastTurnOutcome);
-    }
-
-    private applyNormalClick(clicked: Tile): Partial<TurnOutcome> {
-        const match = this.matches.getAvaliableMatch(this.board, clicked.x, clicked.y);
-        const initialMatchCount = match.length;
-
-        const toRemove = (clicked instanceof SuperTile)
-            ? [...match, clicked]
-            : [...match];
-
-        const removedTiles = this.removeTiles(toRemove);
-
-        const superTile = this.trySpawnSuperTile(clicked.x, clicked.y, initialMatchCount);
-
-        return {
-            removedTiles: Array.from(removedTiles),
-            initialMatchCount,
-            consumedMove: removedTiles.size > 0,
-            superTile: superTile
-        };
-    }
-
-    private applyBoosterClick(clicked: Tile): Partial<TurnOutcome> {
-        const toRemove = this.boosters.processClick(clicked);
-        const removedTiles = this.removeTiles(toRemove);
-
-        return {
-            removedTiles: Array.from(removedTiles),
-            initialMatchCount: 0,
-            consumedMove: false
-        };
-    }
-
-    private removeTiles(initial: Tile[]): Set<Tile> {
-        const queue: Tile[] = [...initial];
-        const removed = new Set<Tile>();
-
-        while (queue.length > 0) {
-            const tile = queue.shift()!;
-            if (!tile || removed.has(tile)) {
-                continue;
-            }
-
-            removed.add(tile);
-            this.board.removeTile(tile);
-
-            if (tile instanceof SuperTile) {
-                const extra = this.superTiles.activate(tile, this.board);
-                for (const e of extra) {
-                    queue.push(e);
-                }
-            }
-        }
-
-        return removed;
-    }
-
-    private trySpawnSuperTile(x: number, y: number, initialRemovedCount: number): SuperTile | null {
-        const superType = this.superTiles.GetSuperTileType(initialRemovedCount);
-        if (superType == SuperTileType.NONE) {
-            return null;
-        }
-
-        const superTile = this.spawner.createSuperTile(x, y, superType);
-        this.board.setTile(x, y, superTile);
-        return superTile;
-    }
-
-    private updateBoard(): Partial<TurnOutcome> {
-        this.shuffle.reset();
-
-        const movements = this.gravity.applyGravity(this.board);
-        this.setState(GameState.APPLYING_GRAVITY);
-
-        const newTiles = this.spawner.fillWithRegularTiles(this.board);
-        this.setState(GameState.SPAWNING_TILES);
-
-        let shuffled = false;
-        for (let attempt = 0; attempt < this.shuffle.attempts; attempt++) {
-            if (this.matches.hasAvailableMatches(this.board)) {
-                return { movements, newTiles: newTiles || [] };
-            }
-            this.shuffle.shuffle(this.board);
-            this.setState(GameState.SHUFFLING);
-            shuffled = true;
-        }
-
-        if (!this.matches.hasAvailableMatches(this.board)) {
-            this.setState(GameState.LOSE);
-        }
-
-        return { movements, newTiles: newTiles, shuffleRequired: shuffled };
     }
 
     private setState(state: GameState) {
@@ -277,18 +190,17 @@ export class BlastGame {
         this.onInputStateChanged.invoke(this.getInputState());
     }
 
-    private getEmptyTurnOutcome(): TurnOutcome {
+    private createTurnCtx(): TurnContext {
         return {
-            state: GameState.IDLE,
-            inputState: InputState.NORMAL,
+            state: this._state,
+            inputState: this._inputState,
             selectedTile: null,
-            movements: [],
-            removedTiles: [],
-            initialMatchCount: 0,
-            consumedMove: false,
-            superTile: null,
-            shuffleRequired: false,
-            newTiles: []
+            spawner: this.spawner,
+            board: this.board,
+            matches: this.matches,
+            initialRemovedCount: 0,
+            tilesToRemove: new Set<Tile>(),
+            tilesToCreate: new Set<Tile>()
         };
     }
 }

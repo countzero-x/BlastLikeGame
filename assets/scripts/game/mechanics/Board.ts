@@ -1,7 +1,10 @@
 import { Tile } from "../Tile";
 
+export interface TurnEffect {
+}
+
 export class Board {
-    private tiles: Map<number, Tile>;
+    public tiles: Map<number, Tile>;
     readonly width: number;
     readonly height: number;
 
@@ -35,6 +38,12 @@ export class Board {
 
         this.tiles.set(this.getKey(posB.x, posB.y), tileA);
         this.tiles.set(this.getKey(posA.x, posA.y), tileB);
+    }
+
+    public removeTiles(tiles: Array<Tile>): void {
+        for (var tile of tiles) {
+            this.removeTileByPosition(tile.x, tile.y);
+        }
     }
 
     public removeTile(tile: Tile): void {

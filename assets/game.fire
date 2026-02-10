@@ -258,7 +258,7 @@
     "tileSize": 110,
     "tileSpacing": 2,
     "scorePerTile": 10,
-    "targetScore": 9000,
+    "targetScore": 5000,
     "maxMoves": 10,
     "maxShuffles": 3,
     "superTileRemovedCountForLine": 5,

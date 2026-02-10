@@ -1,11 +1,13 @@
 import { GameEvent } from "../../GameEvent";
 import { BoosterType } from "../enums/BoosterType";
 import { InputState } from "../enums/InputState";
-import { Tile } from "../Tile";
-import { BoosterContext, IBooster } from "./boosters/IBooster";
+import { TurnContext } from "../TurnContext";
+import { TurnClickProcessor } from "../TurnProcessor";
+import { TurnEffect } from "./Board";
+import { BoosterContext, Booster } from "./boosters/IBooster";
 
-export class Boosters {
-    private readonly _boosters = new Map<BoosterType, IBooster>();
+export class Boosters implements TurnClickProcessor {
+    private readonly _boosters = new Map<BoosterType, Booster>();
 
     private _selectedType: BoosterType = BoosterType.NONE;
     private _ctx: BoosterContext;
@@ -27,11 +29,24 @@ export class Boosters {
         this.onSelectedTypeChanged.invoke(this.selectedType);
     }
 
-    public getBooster(type: BoosterType): IBooster {
+    canProcess(ctx: TurnContext): boolean {
+        return ctx.inputState != InputState.NORMAL;
+    }
+
+    public onTileClick(ctx: TurnContext): TurnEffect | null {
+        const booster = this._boosters.get(this.selectedType);
+        if (!booster) {
+            return null;
+        }
+
+        return booster.onTileClick(ctx);
+    }
+
+    public getBooster(type: BoosterType): Booster {
         return this._boosters.get(type);
     }
 
-    public register(booster: IBooster) {
+    public register(booster: Booster) {
         this._boosters.set(booster.type, booster);
     }
 
@@ -60,26 +75,18 @@ export class Boosters {
         return booster?.canUse() ?? false;
     }
 
-    public processClick(tile: Tile): Tile[] {
-        const booster = this._boosters.get(this.selectedType);
-        if (!booster) return [];
-
-        return booster.onClick(this._ctx, tile);
-    }
-
     private handleInputStateChanged(state: InputState) {
         switch (state) {
             case InputState.NORMAL:
-                this.selectedType = BoosterType.NONE;
+                this._selectedType = BoosterType.NONE;
                 break;
             case InputState.BOMB:
-                this.selectedType = BoosterType.BOMB;
+                this._selectedType = BoosterType.BOMB;
                 break
             case InputState.TELEPORT_PHASE_ONE:
             case InputState.TELEPORT_PHASE_TWO:
-                this.selectedType = BoosterType.TELEPORT;
+                this._selectedType = BoosterType.TELEPORT;
                 break;
         }
     }
-
 }

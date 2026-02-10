@@ -21,12 +21,14 @@ import { SuperTiles } from "./mechanics/superTiles/SuperTiles";
 import { BombBooster } from "./mechanics/boosters/BombBooster";
 import { TeleportBooster } from "./mechanics/boosters/TeleportBooster";
 import { TileColor } from "./enums/TileColor";
-import { SuperTileType } from "./enums/SuperTileType";
+import { SuperTileType } from "./mechanics/superTiles/SuperTileType";
 import { LineSuperTileLogic } from "./mechanics/superTiles/LineSuperTileLogic";
 import { RadiusBombSuperTileLogic } from "./mechanics/superTiles/RadiusBombSuperTileLogic";
 import { MaxBombSuperTileLogic } from "./mechanics/superTiles/MaxBombSuperTileLogic";
 import { Input } from "./mechanics/Input";
-import { GameView } from "./views/GameView";
+import { GameViewController } from "./views/GameViewController";
+import { PostGameProcessor, PostTurnProcessor, PreGameProcessor, PreTurnProcessor, TileDeletedProcessor, TurnClickProcessor } from "./TurnProcessor";
+import { NormalClickProcessor } from "./NormalClickProcessor";
 
 const { ccclass, property } = cc._decorator;
 
@@ -138,23 +140,65 @@ export class Bootstrap extends cc.Component {
         const spawner = new Spawner();
         spawner.register(TileColor.RED);
         spawner.register(TileColor.BLUE);
-        spawner.register(TileColor.GREEN);
-        spawner.register(TileColor.YELLOW);
+        // spawner.register(TileColor.GREEN);
+        // spawner.register(TileColor.YELLOW);
         spawner.register(TileColor.PURPLE);
+
+        const board = new Board(this.boardWidth, this.boardHeight);
+        const score = new Score(this.targetScore, this.scorePerTile);
+        const moves = new Moves(this.maxMoves);
+        const shuffle = new Shuffle(this.maxShuffles);
+        const matches = new Matches();
+        const gravity = new Gravity();
 
         const input = new Input();
 
+        const preGameProcessors: Array<PreGameProcessor> = [
+            spawner
+        ]
+
+        const postGameProcessors: Array<PostGameProcessor> = [
+            spawner
+        ]
+
+        const preTurnProcessors: Array<PreTurnProcessor> = [
+            shuffle
+        ];
+
+        const turnClickProcessors: Array<TurnClickProcessor> = [
+            new NormalClickProcessor(),
+            boosters,
+            superTiles,
+        ];
+
+        const postTurnProcessors: Array<PostTurnProcessor> = [
+            gravity,
+            spawner,
+            moves,
+            score
+        ];
+
+        const tileRemovedProcessors: Array<TileDeletedProcessor> = [
+
+        ];
+
         const game = new BlastGame(
             input,
-            new Board(this.boardWidth, this.boardHeight),
-            new Score(this.targetScore, this.scorePerTile),
-            new Moves(this.maxMoves),
+            board,
+            score,
+            moves,
             spawner,
-            new Shuffle(this.maxShuffles),
-            new Matches(),
-            new Gravity(),
+            shuffle,
+            matches,
+            gravity,
             superTiles,
-            boosters
+            boosters,
+            preGameProcessors,
+            postGameProcessors,
+            preTurnProcessors,
+            turnClickProcessors,
+            postTurnProcessors,
+            tileRemovedProcessors
         );
 
         this.scoreView.init(game.score);
@@ -182,7 +226,7 @@ export class Bootstrap extends cc.Component {
 
         this.boardView.init(game.board, game.input, tileViewPool, this.tileSize, this.tileSpacing);
 
-        const gameView = new GameView(game, this.boardView, new Array<BoosterView>(this.bombView, this.teleportView), this.loseView, this.winView, this.movesView, this.scoreView, this.overlayView);
+        const gameView = new GameViewController(game, this.boardView, new Array<BoosterView>(this.bombView, this.teleportView), this.loseView, this.winView, this.movesView, this.scoreView, this.overlayView);
         gameView.init();
 
         game.start();

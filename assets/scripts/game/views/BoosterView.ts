@@ -1,7 +1,7 @@
 import { BlastGame } from "../BlastGame";
 import { BoosterType } from "../enums/BoosterType";
 import { Boosters } from "../mechanics/Boosters";
-import { IBooster } from "../mechanics/boosters/IBooster";
+import { Booster } from "../mechanics/boosters/IBooster";
 
 const { ccclass, property } = cc._decorator;
 
@@ -14,7 +14,7 @@ export class BoosterView extends cc.Component {
     @property(cc.Button)
     private button: cc.Button;
 
-    private _booster: IBooster;
+    private _booster: Booster;
     private _boosters: Boosters
 
     private _type: BoosterType;

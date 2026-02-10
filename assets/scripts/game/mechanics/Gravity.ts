@@ -1,6 +1,9 @@
 import { TileColor } from "../enums/TileColor";
 import { Tile } from "../Tile";
-import { Board } from "./Board";
+import { TurnContext } from "../TurnContext";
+import { PostTurnProcessor, TurnClickProcessor } from "../TurnProcessor";
+import { Board, TurnEffect } from "./Board";
+import { GravityEffect } from "./effects/GravityEffect";
 
 export interface TileMove {
     x: number;
@@ -9,7 +12,20 @@ export interface TileMove {
     tile: Tile;
 }
 
-export class Gravity {
+export class Gravity implements PostTurnProcessor {
+
+    public canProcess(ctx: TurnContext): boolean {
+        return true;
+    }
+
+    public onPostTurn(ctx: TurnContext): TurnEffect | null {
+        const moves = this.applyGravity(ctx.board);
+
+        const result: GravityEffect = new GravityEffect();
+        result.moves = moves;
+        return result;
+    }
+
     public applyGravity(board: Board): Array<TileMove> {
         const moveHistory = [];
 

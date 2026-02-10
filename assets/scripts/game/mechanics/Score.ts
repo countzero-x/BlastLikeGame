@@ -1,6 +1,11 @@
 import { GameEvent } from "../../GameEvent";
+import { GameState } from "../enums/GameState";
+import { TurnContext } from "../TurnContext";
+import { PostTurnProcessor } from "../TurnProcessor";
+import { TurnEffect } from "./Board";
+import { WinEffect } from "./effects/WinEffect";
 
-export class Score {
+export class Score implements PostTurnProcessor {
     public readonly targetScore: number;
     public readonly scorePerTile: number;
 
@@ -12,6 +17,21 @@ export class Score {
         this._currentScore = 0;
         this.targetScore = targetScore;
         this.scorePerTile = scorePerTile;
+    }
+
+    public canProcess(ctx: TurnContext): boolean {
+        return true;
+    }
+
+    public onPostTurn(ctx: TurnContext): TurnEffect | null {
+        this.addScore(this.calculateScore(ctx.tilesToRemove.size));
+
+        if (this.hasReachedTarget()) {
+            ctx.state = GameState.WIN;
+            return new WinEffect();
+        }
+
+        return null;
     }
 
     public get currentScore(): number {

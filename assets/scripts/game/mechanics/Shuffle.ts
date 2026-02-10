@@ -1,7 +1,10 @@
-import { Board } from "./Board";
+import { Board, TurnEffect } from "./Board";
 import { Tile } from "../Tile";
+import { PreTurnProcessor } from "../TurnProcessor";
+import { TurnContext } from "../TurnContext";
+import { ShuffleEffect } from "./effects/ShuffleEffect";
 
-export class Shuffle {
+export class Shuffle implements PreTurnProcessor {
     public readonly maxAttempts: number;
 
     private _attempts: number;
@@ -13,6 +16,26 @@ export class Shuffle {
 
     public get attempts(): number {
         return this._attempts;
+    }
+
+    public canProcess(ctx: TurnContext): boolean {
+        return true;
+    }
+
+    public onPreTurn(ctx: TurnContext): TurnEffect | null {
+        this.reset();
+
+        let shuffled = false;
+        while (this.shuffleAvaliable() && !ctx.matches.hasAvailableMatches(ctx.board)) {
+            this.shuffle(ctx.board);
+            shuffled = true;
+        }
+
+        if (shuffled && ctx.matches.hasAvailableMatches(ctx.board)) {
+            const result: ShuffleEffect = new ShuffleEffect();
+            result.tilesToShuffle = ctx.board.getAllTiles();
+            return result;
+        }
     }
 
     public shuffleAvaliable() {
