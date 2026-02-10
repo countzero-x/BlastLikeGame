@@ -15,21 +15,23 @@ export class NormalClickProcessor implements TurnClickProcessor {
         const match = ctx.matches.getAvaliableMatch(ctx.board, ctx.selectedTile.x, ctx.selectedTile.y);
         ctx.initialRemovedCount = match.length;
 
-        if (match.length == 0) {
+        if (ctx.selectedTile instanceof SuperTile) {
+            ctx.tilesToRemove.add(ctx.selectedTile);
+            const destroyEffect: DestroyEffect = new DestroyEffect();
+            destroyEffect.tilesToRemove = [ctx.selectedTile];
+            return destroyEffect;
+        }
+        else if (match.length == 0) {
             const shakeEffect: ShakeEffect = new ShakeEffect();
             shakeEffect.tileToShake = ctx.selectedTile;
             return shakeEffect;
         } else {
-            const toRemove = (ctx.selectedTile instanceof SuperTile)
-                ? [...match, ctx.selectedTile]
-                : [...match];
-
-            for (const tile of toRemove) {
+            for (const tile of match) {
                 ctx.tilesToRemove.add(tile);
             }
 
             const destroyEffect: DestroyEffect = new DestroyEffect();
-            destroyEffect.tilesToRemove = toRemove;
+            destroyEffect.tilesToRemove = [...match];
             return destroyEffect;
         };
     }
