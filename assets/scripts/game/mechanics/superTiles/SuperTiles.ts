@@ -5,12 +5,12 @@ import { Tile } from "../../Tile";
 import { SuperTile } from "./SuperTile";
 import { SuperTileFactory } from "./SuperTileFactory";
 import { SuperTileLogic } from "./SuperTileLogic";
-import { PostTurnProcessor, TurnClickProcessor } from "../../TurnProcessor";
+import { TurnClickProcessor } from "../../TurnProcessor";
 import { TurnContext } from "../../TurnContext";
 import { SuperTileSpawnEffect } from "../effects/SuperTileSpawnEffect";
+import { DestroyEffect } from "../effects/DestroyEffect";
 
 export class SuperTiles implements TurnClickProcessor {
-
     private readonly _logics = new Map<SuperTileType, SuperTileLogic>();
     private readonly _typeFactory = new SuperTileFactory();
 
@@ -25,11 +25,13 @@ export class SuperTiles implements TurnClickProcessor {
 
     public onTileClick(ctx: TurnContext): TurnEffect | null {
         if (ctx.selectedTile instanceof SuperTile) {
-            for (const logic of Array.from(this._logics.values())) {
-                if (logic.canProcess(ctx)) {
-                    return logic.onTileClick(ctx);
-                }
-            }
+            const toRemove = this.applyChainReaction(ctx.selectedTile, ctx.board);
+
+            toRemove.forEach(tile => ctx.tilesToRemove.add(tile));
+
+            const effect = new DestroyEffect();
+            effect.tilesToRemove = toRemove;
+            return effect;
         }
         else {
             const superType = this.getSuperTileType(ctx.initialRemovedCount);
@@ -54,6 +56,37 @@ export class SuperTiles implements TurnClickProcessor {
     public activate(superTile: SuperTile, board: Board): Tile[] {
         const logic = this._logics.get(superTile.type);
         return logic ? logic.activate(superTile, board) : [];
+    }
+
+    private applyChainReaction(tile: Tile, board: Board): Tile[] {
+        const resultTiles = new Set<Tile>();
+        const processed = new Set<Tile>();
+        const queue: Tile[] = [tile];
+
+        while (queue.length > 0) {
+            const currentTile = queue.shift()!;
+
+            if (processed.has(currentTile)) {
+                continue;
+            }
+
+            processed.add(currentTile);
+
+            if (currentTile instanceof SuperTile) {
+                const tilesToRemove = this.activate(currentTile, board);
+                resultTiles.add(currentTile);
+
+                for (const tileToRemove of tilesToRemove) {
+                    resultTiles.add(tileToRemove);
+
+                    if (tileToRemove instanceof SuperTile && !processed.has(tileToRemove)) {
+                        queue.push(tileToRemove);
+                    }
+                }
+            }
+        }
+
+        return Array.from(resultTiles);
     }
 }
 
