@@ -47,68 +47,67 @@ export class BlastGameMediator implements GameMediator {
         }
     }
 
-
-    startGame(): void {
+    public startGame(): void {
         this._game.start();
     }
 
-    finishGame(): void {
+    public finishGame(): void {
         this._game.finish();
     }
 
-    enableInput(): void {
+    public enableInput(): void {
         this._game.input.enable();
     }
 
-    disableInput(): void {
+    public disableInput(): void {
         this._game.input.disable();
     }
 
-    click(x: number, y: number): void {
+    public click(x: number, y: number): void {
         this._game.processTurn(x, y);
     }
 
-    getBoardWidth(): number {
+    public getBoardWidth(): number {
         return this._game.board.width;
     }
 
-    getBoardHeight(): number {
+    public getBoardHeight(): number {
         return this._game.board.height;
     }
 
-    getTile(x: number, y: number): Tile {
+    public getTile(x: number, y: number): Tile {
         return this._game.board.getTile(x, y);
     }
 
-    getCurrentScore(): number {
+    public getCurrentScore(): number {
         return this._game.score.currentScore;
     }
 
-    getTargetScore(): number {
+    public getTargetScore(): number {
         return this._game.score.targetScore;
     }
 
-    getMovesCount(): number {
+    public getMovesCount(): number {
         return this._game.moves.currentMoves;
     }
 
-    canSelectBooster(type: BoosterType): boolean {
+    public canSelectBooster(type: BoosterType): boolean {
         return this._game.boosters.canApply(type);
     }
 
-    selectBooster(type: BoosterType): void {
+    public selectBooster(type: BoosterType): void {
         this._game.selectBooster(type);
     }
 
-    deselectBooster(type: BoosterType): void {
+    public deselectBooster(type: BoosterType): void {
         this._game.deselectBooster(BoosterType.NONE);
     }
 
-    getBoosterCount(type: BoosterType): number {
+    public getBoosterCount(type: BoosterType): number {
         return this._game.boosters.getBooster(type).getCount();
     }
 
-    getSelectedBoosterType(): BoosterType {
+    public getSelectedBoosterType(): BoosterType {
         return this._game.boosters.selectedType;
     }
 }
