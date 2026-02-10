@@ -62,6 +62,7 @@ export class BlastGame {
         this.superTiles = superTiles;
         this.boosters = boosters;
 
+
         this.boosters.setContext({
             board: this.board,
             setInputState: this.setInputState.bind(this),
@@ -77,6 +78,8 @@ export class BlastGame {
     }
 
     public start() {
+        this.input.tileClicked.subscribe(this.makeMove, this);
+
         this._inputState = InputState.NORMAL;
         this.updateBoard();
 
@@ -86,15 +89,17 @@ export class BlastGame {
     }
 
     public finish() {
+        this.input.tileClicked.unsubscribe(this.makeMove, this);
+
         this.reset();
     }
 
-    public makeMove(x: number, y: number) {
+    public makeMove(pos: { x: number, y: number }) {
         if (!this.input.isEnabled) {
             return;
         }
 
-        const tile = this.board.getTile(x, y);
+        const tile = this.board.getTile(pos.x, pos.y);
         if (!tile || tile.isEmpty) {
             return;
         }

@@ -72,7 +72,7 @@ export class BoardView extends cc.Component {
         }
 
         if (this.isValidPosition(gridPos.x, gridPos.y)) {
-            this._game.makeMove(gridPos.x, gridPos.y);
+            this._game.input.invokeTileClick({ x: gridPos.x, y: gridPos.y });
         }
     }
 
