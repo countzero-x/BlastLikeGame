@@ -1,6 +1,6 @@
-import { BlastGame } from "../BlastGame";
+import { Board } from "../mechanics/Board";
+import { Input } from "../mechanics/Input";
 import { Tile } from "../Tile";
-
 import TileView from "./TileView";
 import { TileViewPool } from "./TileViewPool";
 
@@ -15,15 +15,17 @@ export class BoardView extends cc.Component {
     @property(cc.Node)
     private clickNode: cc.Node
 
-    private _game: BlastGame
+    private _board: Board;
+    private _input: Input;
     private _tileSize: number;
     private _tileSpacing: number;
     private _tileViews: TileView[][] = [];
     private _tileViewPool: TileViewPool;
 
-    public init(game: BlastGame, tileViewPool: TileViewPool, tileSize: number, tileSpacing: number) {
+    public init(board: Board, input: Input, tileViewPool: TileViewPool, tileSize: number, tileSpacing: number) {
         this._tileViewPool = tileViewPool;
-        this._game = game;
+        this._board = board;
+        this._input = input;
         this._tileSize = tileSize;
         this._tileSpacing = tileSpacing;
     }
@@ -37,8 +39,8 @@ export class BoardView extends cc.Component {
     }
 
     public updateView() {
-        for (let x = 0; x < this._game.board.width; x++) {
-            for (let y = 0; y < this._game.board.height; y++) {
+        for (let x = 0; x < this._board.width; x++) {
+            for (let y = 0; y < this._board.height; y++) {
                 if (this._tileViews.length - 1 < x) {
                     continue;
                 }
@@ -64,7 +66,7 @@ export class BoardView extends cc.Component {
         cc.log(`Клик в мировых координатах: (${touchPos.x}, ${touchPos.y})`);
         cc.log(`Конвертировано в сетку: (${gridPos.x}, ${gridPos.y})`);
 
-        const tile = this._game.board.getTile(gridPos.x, gridPos.y);
+        const tile = this._board.getTile(gridPos.x, gridPos.y);
         if (tile) {
             cc.log(`Тайл найден: цвет=${tile.color}, isEmpty=${tile.isEmpty}`);
         } else {
@@ -72,15 +74,15 @@ export class BoardView extends cc.Component {
         }
 
         if (this.isValidPosition(gridPos.x, gridPos.y)) {
-            this._game.input.invokeTileClick({ x: gridPos.x, y: gridPos.y });
+            this._input.invokeTileClick({ x: gridPos.x, y: gridPos.y });
         }
     }
 
     private createTileViews(): void {
-        for (let x = 0; x < this._game.board.width; x++) {
+        for (let x = 0; x < this._board.width; x++) {
             this._tileViews[x] = [];
-            for (let y = 0; y < this._game.board.height; y++) {
-                const tile = this._game.board.getTile(x, y);
+            for (let y = 0; y < this._board.height; y++) {
+                const tile = this._board.getTile(x, y);
                 const tileView = this.createTileView(tile);
                 this._tileViews[x][y] = tileView;
             }
@@ -88,7 +90,7 @@ export class BoardView extends cc.Component {
     }
 
     private isValidPosition(x: number, y: number): boolean {
-        return x >= 0 && x < this._game.board.width && y >= 0 && y < this._game.board.height;
+        return x >= 0 && x < this._board.width && y >= 0 && y < this._board.height;
     }
 
     private createTileView(tile: Tile): TileView {
@@ -104,8 +106,8 @@ export class BoardView extends cc.Component {
     }
 
     private gridToWorldPos(x: number, y: number): cc.Vec3 {
-        const startX = -(this._game.board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
-        const startY = -(this._game.board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startX = -(this._board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startY = -(this._board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
 
         return cc.v3(
             startX + x * (this._tileSize + this._tileSpacing),
@@ -117,8 +119,8 @@ export class BoardView extends cc.Component {
     private worldToGridPos(worldPos: cc.Vec2): { x: number, y: number } | null {
         const localPos = this.tiles.convertToNodeSpaceAR(worldPos);
 
-        const startX = -(this._game.board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
-        const startY = -(this._game.board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startX = -(this._board.width * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
+        const startY = -(this._board.height * (this._tileSize + this._tileSpacing)) / 2 + this._tileSize / 2;
 
         const x = Math.floor((localPos.x - startX + this._tileSize / 2) / (this._tileSize + this._tileSpacing));
         const y = Math.floor((localPos.y - startY + this._tileSize / 2) / (this._tileSize + this._tileSpacing));

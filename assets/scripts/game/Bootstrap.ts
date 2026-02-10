@@ -122,9 +122,6 @@ export class Bootstrap extends cc.Component {
     @property(cc.SpriteFrame)
     private maxBombTileSprite: cc.SpriteFrame;
 
-    @property(cc.Node)
-    private clickNode: cc.Node;
-
     protected onLoad(): void {
 
         const boosters = new Boosters();
@@ -184,7 +181,7 @@ export class Bootstrap extends cc.Component {
         tileViewPool.registerSuperTile(SuperTileType.RADIUS_BOMB, this.radiusBombTileSprite);
         tileViewPool.registerSuperTile(SuperTileType.MAX_BOMB, this.maxBombTileSprite);
 
-        this.boardView.init(game, tileViewPool, this.tileSize, this.tileSpacing);
+        this.boardView.init(game.board, game.input, tileViewPool, this.tileSize, this.tileSpacing);
 
         game.stateChanged.subscribe(this.handleStateChanged, this);
         game.start();
