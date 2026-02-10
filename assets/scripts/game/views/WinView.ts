@@ -33,19 +33,24 @@ export class WinView extends cc.Component {
         );
     }
 
-    public async hide() {
-        this.panelWin.stopAllActions();
-        this.panelWin.runAction(
-            cc.sequence(
-                cc.spawn(
-                    cc.scaleTo(0.3, 0),
-                    cc.fadeOut(0.3)
-                ),
-                cc.callFunc(() => {
-                    this.panelWin.active = false;
-                    this.panelWin.opacity = 255;
-                })
-            )
-        );
+    public async hide(animated: boolean = true) {
+        if (animated) {
+            this.panelWin.stopAllActions();
+            this.panelWin.runAction(
+                cc.sequence(
+                    cc.spawn(
+                        cc.scaleTo(0.3, 0),
+                        cc.fadeOut(0.3)
+                    ),
+                    cc.callFunc(() => {
+                        this.panelWin.active = false;
+                        this.panelWin.opacity = 255;
+                    })
+                )
+            );
+        } else {
+            this.panelWin.active = false;
+            this.panelWin.opacity = 255;
+        }
     }
 }

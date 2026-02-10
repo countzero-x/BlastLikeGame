@@ -6,16 +6,24 @@ const { ccclass, property } = cc._decorator;
 export class MovesView extends cc.Component {
 
     @property(cc.Label)
-    private label: cc.Label
+    private label: cc.Label;
 
     private _moves: Moves;
     private _currentDisplayMoves: number;
 
     public init(moves: Moves) {
         this._moves = moves;
+        this._currentDisplayMoves = moves.currentMoves;
     }
 
-    public animateMovesUpdate(): Promise<void> {
+    public updateMoves(animated: boolean = true): Promise<void> {
+        if (!animated) {
+            return new Promise<void>((resolve) => {
+                this.label.string = this.label.string = `${this._moves.currentMoves}`;
+                resolve();
+            })
+        }
+
         return new Promise<void>((resolve) => {
             if (!this.label) {
                 resolve();

@@ -13,9 +13,17 @@ export class ScoreView extends cc.Component {
 
     public init(game: Score) {
         this._score = game;
+        this._currentDisplayScore = this._score.currentScore;
     }
 
-    public animateScoreUpdate(): Promise<void> {
+    public updateScore(animated: boolean = true): Promise<void> {
+        if (!animated) {
+            return new Promise<void>((resolve) => {
+                this.label.string = `${this._score.currentScore}/${this._score.targetScore}`;
+                resolve();
+            })
+        }
+
         return new Promise<void>((resolve) => {
             if (!this.label) {
                 resolve();

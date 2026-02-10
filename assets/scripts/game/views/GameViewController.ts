@@ -60,13 +60,18 @@ export class GameViewController {
             this._boosterViewsMap.set(item.type, item);
         }
 
+        this._overlayView.hide(false);
+        this._winView.hide(false);
+        this._loseView.hide(false);
         this._game.input.enable();
+        this._scoreView.updateScore(false);
+        this._movesView.updateMoves(false)
     }
 
     private async processEffects(effects: Array<TurnEffect>) {
         this._game.input.disable();
 
-        this._overlayView.hide(false);
+        this._overlayView.hide();
         this._winView.hide();
         this._loseView.hide();
 
@@ -95,20 +100,21 @@ export class GameViewController {
             }
             else if (effect instanceof WinEffect) {
                 await this._boardView.animateHideTiles();
-                await this._overlayView.show(true);
+                await this._overlayView.show();
                 await this._winView.show();
                 this._boardView.reset();
             }
             else if (effect instanceof LoseEffect) {
                 await this._boardView.animateHideTiles();
-                await this._overlayView.show(true);
+                await this._overlayView.show();
                 await this._loseView.show();
                 this._boardView.reset();
             }
+
         }
 
-        this._scoreView.animateScoreUpdate();
-        this._movesView.animateMovesUpdate()
+        this._scoreView.updateScore();
+        this._movesView.updateMoves()
 
         this._game.input.enable();
     }

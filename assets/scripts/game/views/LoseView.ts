@@ -23,7 +23,7 @@ export class LoseView extends cc.Component {
         })
     }
 
-    public async show() {
+    public async show(animated: boolean = true) {
         this.panelLose.scale = 0;
         this.panelLose.active = true;
         this.panelLose.runAction(
@@ -34,19 +34,24 @@ export class LoseView extends cc.Component {
         );
     }
 
-    public async hide() {
-        this.panelLose.stopAllActions();
-        this.panelLose.runAction(
-            cc.sequence(
-                cc.spawn(
-                    cc.scaleTo(0.3, 0),
-                    cc.fadeOut(0.3)
-                ),
-                cc.callFunc(() => {
-                    this.panelLose.active = false;
-                    this.panelLose.opacity = 255;
-                })
-            )
-        );
+    public async hide(animated: boolean = true) {
+        if (animated) {
+            this.panelLose.stopAllActions();
+            this.panelLose.runAction(
+                cc.sequence(
+                    cc.spawn(
+                        cc.scaleTo(0.3, 0),
+                        cc.fadeOut(0.3)
+                    ),
+                    cc.callFunc(() => {
+                        this.panelLose.active = false;
+                        this.panelLose.opacity = 255;
+                    })
+                )
+            );
+        } else {
+            this.panelLose.active = false;
+            this.panelLose.opacity = 255;
+        }
     }
 }

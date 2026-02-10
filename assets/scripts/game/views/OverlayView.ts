@@ -12,7 +12,7 @@ export class OverlayView extends cc.Component {
         this._currentOpacity = this.ovelay.opacity;
     }
 
-    public async show(animated: boolean) {
+    public async show(animated: boolean = true) {
         if (animated) {
             this.ovelay.opacity = 0;
             this.ovelay.active = true;
@@ -24,7 +24,7 @@ export class OverlayView extends cc.Component {
         }
     }
 
-    public async hide(animated: boolean) {
+    public async hide(animated: boolean = true) {
         if (animated) {
             this.ovelay.runAction(
                 cc.sequence(
