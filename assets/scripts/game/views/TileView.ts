@@ -7,7 +7,9 @@ export default class TileView extends cc.Component {
     private sprite: cc.Sprite = null;
 
     private _originalPos: cc.Vec3 | null;
-
+    private shakeAction: cc.Action | null = null;
+    private shakeResolve: (() => void) | null = null;
+    
     public setSpriteFrame(spriteFrame: cc.SpriteFrame): void {
         if (spriteFrame) {
             this.node.active = true;
@@ -21,9 +23,7 @@ export default class TileView extends cc.Component {
         return this.node.position;
     }
 
-    private shakeAction: cc.Action | null = null;
-
-    public startShake(): void {
+    public async startShake(): Promise<void> {
         this.stopShake();
 
         const shakeDistance = 10;
@@ -42,9 +42,13 @@ export default class TileView extends cc.Component {
         infiniteShake.setTag(999);
 
         this.shakeAction = this.node.runAction(infiniteShake);
+
+        return new Promise<void>((resolve) => {
+            this.shakeResolve = resolve;
+        });
     }
 
-    public stopShake(): void {
+    public async stopShake(): Promise<void> {
         this.node.stopActionByTag(999);
 
         if (this.shakeAction) {
@@ -52,36 +56,43 @@ export default class TileView extends cc.Component {
             this.shakeAction = null;
         }
 
-        if (this._originalPos == null) {
-            return;
-        }
-
-        this.node.setPosition(
-            Math.round(this._originalPos.x),
-            Math.round(this._originalPos.y)
-        );
-    }
-
-    public animateShake(): void {
         if (this._originalPos != null) {
-            this.node.setPosition(this._originalPos);
+            this.node.setPosition(
+                Math.round(this._originalPos.x),
+                Math.round(this._originalPos.y)
+            );
         }
-        this._originalPos = this.node.position.clone();
-        this.node.stopActionByTag(999);
 
-        const originalPos = this.node.position.clone();
-        const shakeDistance = 10;
-        const shakeSpeed = 0.05;
-
-        const shakeAction = cc.sequence(
-            cc.moveBy(shakeSpeed, -shakeDistance, 0),
-            cc.moveBy(shakeSpeed, shakeDistance * 2, 0),
-            cc.moveBy(shakeSpeed, -shakeDistance * 2, 0),
-            cc.moveBy(shakeSpeed, shakeDistance, 0),
-            cc.moveTo(0, originalPos.x, originalPos.y),
-        );
-
-        shakeAction.setTag(999);
-        this.node.runAction(shakeAction);
+        if (this.shakeResolve) {
+            this.shakeResolve();
+            this.shakeResolve = null;
+        }
     }
+
+    public async animateShake(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            if (this._originalPos != null) {
+                this.node.setPosition(this._originalPos);
+            }
+            this._originalPos = this.node.position.clone();
+            this.node.stopActionByTag(999);
+
+            const originalPos = this.node.position.clone();
+            const shakeDistance = 10;
+            const shakeSpeed = 0.05;
+
+            const shakeAction = cc.sequence(
+                cc.moveBy(shakeSpeed, -shakeDistance, 0),
+                cc.moveBy(shakeSpeed, shakeDistance * 2, 0),
+                cc.moveBy(shakeSpeed, -shakeDistance * 2, 0),
+                cc.moveBy(shakeSpeed, shakeDistance, 0),
+                cc.moveTo(0, originalPos.x, originalPos.y),
+                cc.callFunc(() => resolve())
+            );
+
+            shakeAction.setTag(999);
+            this.node.runAction(shakeAction);
+        });
+    }
+
 }

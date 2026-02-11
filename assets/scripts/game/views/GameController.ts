@@ -95,7 +95,7 @@ export class GameController {
             }
             else if (effect instanceof ShakeEffect) {
                 const view = this._boardView.getTileView(effect.tileToShake.x, effect.tileToShake.y);
-                view.animateShake();
+                await view.animateShake();
             }
             else if (effect instanceof SwapEffect) {
                 const viewLeft = this._boardView.getTileView(effect.left.x, effect.left.y);
@@ -110,7 +110,7 @@ export class GameController {
             }
             else if (effect instanceof TeleportDeselectEffect) {
                 const view = this._boardView.getTileView(effect.deselectedTile.x, effect.deselectedTile.y);
-                view.stopShake();
+                await view.stopShake();
             }
             else if (effect instanceof WinEffect) {
                 await this._boardView.animateHideTiles();
